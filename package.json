@@ -31,20 +31,20 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
     "conventional-changelog-cli": "^5.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.7.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
     "@privy-io/server-auth": "^1.26.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "viem": "^2.23.9",
-    "zod": "^3.24.2"
+    "viem": "^2.30.6",
+    "zod": "^3.25.51"
   },
   "keywords": [
     "mcp",
