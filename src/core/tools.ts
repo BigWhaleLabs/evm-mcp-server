@@ -1240,79 +1240,79 @@ export function registerEVMTools(server: McpServer) {
   // CONTRACT TOOLS
 
   // Read contract
-  // server.tool(
-  //   'read_contract',
-  //   "Read data from a smart contract by calling a view/pure function. This doesn't modify blockchain state and doesn't require gas or signing.",
-  //   {
-  //     contractAddress: z
-  //       .string()
-  //       .describe('The address of the smart contract to interact with'),
-  //     abi: z
-  //       .array(z.any())
-  //       .describe(
-  //         'The ABI (Application Binary Interface) of the smart contract function, as a JSON array'
-  //       ),
-  //     functionName: z
-  //       .string()
-  //       .describe(
-  //         "The name of the function to call on the contract (e.g., 'balanceOf')"
-  //       ),
-  //     args: z
-  //       .array(z.any())
-  //       .optional()
-  //       .describe(
-  //         "The arguments to pass to the function, as an array (e.g., ['0x1234...'])"
-  //       ),
-  //     network: z
-  //       .string()
-  //       .optional()
-  //       .describe(
-  //         "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Ethereum mainnet."
-  //       ),
-  //   },
-  //   async ({
-  //     contractAddress,
-  //     abi,
-  //     functionName,
-  //     args = [],
-  //     network = 'base',
-  //   }) => {
-  //     try {
-  //       // Parse ABI if it's a string
-  //       const parsedAbi = typeof abi === 'string' ? JSON.parse(abi) : abi
+  server.tool(
+    'read_contract',
+    "Read data from a smart contract by calling a view/pure function. This doesn't modify blockchain state and doesn't require gas or signing.",
+    {
+      contractAddress: z
+        .string()
+        .describe('The address of the smart contract to interact with'),
+      abi: z
+        .array(z.any())
+        .describe(
+          'The ABI (Application Binary Interface) of the smart contract function, as a JSON array'
+        ),
+      functionName: z
+        .string()
+        .describe(
+          "The name of the function to call on the contract (e.g., 'balanceOf')"
+        ),
+      args: z
+        .array(z.any())
+        .optional()
+        .describe(
+          "The arguments to pass to the function, as an array (e.g., ['0x1234...'])"
+        ),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Ethereum mainnet."
+        ),
+    },
+    async ({
+      contractAddress,
+      abi,
+      functionName,
+      args = [],
+      network = 'base',
+    }) => {
+      try {
+        // Parse ABI if it's a string
+        const parsedAbi = typeof abi === 'string' ? JSON.parse(abi) : abi
 
-  //       const params = {
-  //         address: contractAddress as Address,
-  //         abi: parsedAbi,
-  //         functionName,
-  //         args,
-  //       }
+        const params = {
+          address: contractAddress as Address,
+          abi: parsedAbi,
+          functionName,
+          args,
+        }
 
-  //       const result = await services.readContract(params, network)
+        const result = await services.readContract(params, network)
 
-  //       return {
-  //         content: [
-  //           {
-  //             type: 'text',
-  //             text: services.helpers.formatJson(result),
-  //           },
-  //         ],
-  //       }
-  //     } catch (error) {
-  //       return {
-  //         content: [
-  //           {
-  //             type: 'text',
-  //             text: `Error reading contract: ${
-  //               error instanceof Error ? error.message : String(error)
-  //             }`,
-  //           },
-  //         ],
-  //         isError: true,
-  //       }
-  //     }
-  //   }
-  // )
+        return {
+          content: [
+            {
+              type: 'text',
+              text: services.helpers.formatJson(result),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error reading contract: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 
   // Write to contract
   server.tool(
