@@ -40,7 +40,8 @@ import {
 } from 'viem/chains'
 
 // Default configuration values
-export const DEFAULT_RPC_URL = 'https://mainnet.base.org'
+export const DEFAULT_RPC_URL =
+  'https://base-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY
 export const DEFAULT_CHAIN_ID = 8453
 
 // Map chain IDs to chains

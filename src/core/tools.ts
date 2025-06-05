@@ -1559,6 +1559,9 @@ export function registerEVMTools(server: McpServer) {
         .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
     },
     async ({ address, tokenAddress, network = 'base' }) => {
+      console.log(
+        `Fetching ERC20 balance for address: ${address}, token: ${tokenAddress}, network: ${network}`
+      )
       try {
         const balance = await services.getERC20Balance(
           tokenAddress as Address,
