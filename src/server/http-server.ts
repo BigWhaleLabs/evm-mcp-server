@@ -104,8 +104,8 @@ const handleSessionRequest = async (
 // Handle GET requests for server-to-client notifications via SSE
 app.get('/mcp', handleSessionRequest)
 
-// Handle DELETE requests for session termination
-app.delete('/mcp', handleSessionRequest)
+// // Handle DELETE requests for session termination
+// app.delete('/mcp', handleSessionRequest)
 
 app.listen(3000, () => {
   console.log('MCP HTTP Server running on port 3000')
