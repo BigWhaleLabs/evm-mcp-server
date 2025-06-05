@@ -1,4 +1,5 @@
 import express from 'express'
+import morgan from 'morgan'
 import { randomUUID } from 'node:crypto'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
@@ -6,6 +7,21 @@ import startServer from './server.js'
 
 const app = express()
 app.use(express.json())
+
+// Add morgan logging with custom format including session ID
+morgan.token(
+  'session-id',
+  (req) => (req.headers['mcp-session-id'] as string) || 'none'
+)
+morgan.token('body', (req) =>
+  req.method === 'POST' && 'body' in req ? JSON.stringify(req.body) : ''
+)
+
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms - session: :session-id :body'
+  )
+)
 
 // Map to store transports by session ID
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {}
@@ -19,19 +35,23 @@ app.post('/mcp', async (req, res) => {
   if (sessionId && transports[sessionId]) {
     // Reuse existing transport
     transport = transports[sessionId]
+    console.log(`[Transport] Reusing session: ${sessionId}`)
   } else if (!sessionId && isInitializeRequest(req.body)) {
     // New initialization request
+    console.log('[Transport] Creating new transport for initialization')
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       onsessioninitialized: (sessionId) => {
         // Store the transport by session ID
         transports[sessionId] = transport
+        console.log(`[Transport] Session initialized: ${sessionId}`)
       },
     })
 
     // Clean up transport when closed
     transport.onclose = () => {
       if (transport.sessionId) {
+        console.log(`[Transport] Session closed: ${transport.sessionId}`)
         delete transports[transport.sessionId]
       }
     }
@@ -43,6 +63,7 @@ app.post('/mcp', async (req, res) => {
     await server.connect(transport)
   } else {
     // Invalid request
+    console.log('[Transport] Invalid request - no valid session ID')
     res.status(400).json({
       jsonrpc: '2.0',
       error: {
@@ -55,6 +76,11 @@ app.post('/mcp', async (req, res) => {
   }
 
   // Handle the request
+  console.log(
+    `[Transport] Handling request for session: ${
+      transport.sessionId || 'unknown'
+    }`
+  )
   await transport.handleRequest(req, res, req.body)
 })
 
@@ -65,11 +91,13 @@ const handleSessionRequest = async (
 ) => {
   const sessionId = req.headers['mcp-session-id'] as string | undefined
   if (!sessionId || !transports[sessionId]) {
+    console.log(`[Transport] Invalid session request: ${sessionId}`)
     res.status(400).send('Invalid or missing session ID')
     return
   }
 
   const transport = transports[sessionId]
+  console.log(`[Transport] Handling ${req.method} for session: ${sessionId}`)
   await transport.handleRequest(req, res)
 }
 

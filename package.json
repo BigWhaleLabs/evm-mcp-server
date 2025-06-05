@@ -33,6 +33,7 @@
     "@types/bun": "latest",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
+    "@types/morgan": "^1.9.9",
     "conventional-changelog-cli": "^5.0.0"
   },
   "peerDependencies": {
@@ -43,6 +44,7 @@
     "@privy-io/server-auth": "^1.26.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "morgan": "^1.10.0",
     "viem": "^2.30.6",
     "zod": "^3.25.51"
   },
