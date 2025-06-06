@@ -2018,9 +2018,15 @@ export function registerEVMTools(server: McpServer) {
       tokenInAddress: z
         .string()
         .describe('The address of the ERC20 token you want to swap from'),
+      tokenInDecimals: z
+        .number()
+        .describe('The number of decimals for the input token.'),
       tokenOutAddress: z
         .string()
         .describe('The address of the ERC20 token you want to swap to'),
+      tokenOutDecimals: z
+        .number()
+        .describe('The number of decimals for the output token.'),
       amountIn: z
         .string()
         .describe(
@@ -2040,7 +2046,9 @@ export function registerEVMTools(server: McpServer) {
       privyWalletId,
       fromAddress,
       tokenInAddress,
+      tokenInDecimals,
       tokenOutAddress,
+      tokenOutDecimals,
       amountIn,
       network = 'base',
     }) => {
@@ -2084,18 +2092,6 @@ export function registerEVMTools(server: McpServer) {
             hash: result.txHash,
           })
         }
-
-        // Get decimals
-        const tokenInDecimals = await publicClient.readContract({
-          abi: erc20Abi,
-          address: tokenInAddress as Address,
-          functionName: 'decimals',
-        })
-        const tokenOutDecimals = await publicClient.readContract({
-          abi: erc20Abi,
-          address: tokenOutAddress as Address,
-          functionName: 'decimals',
-        })
 
         // Get route
         const tokenIn = new Token(chainId, tokenInAddress, tokenInDecimals)
