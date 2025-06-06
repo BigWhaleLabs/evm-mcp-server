@@ -40,8 +40,12 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.8.0",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@privy-io/server-auth": "^1.26.1",
+    "@uniswap/sdk-core": "^7.7.2",
+    "@uniswap/smart-order-router": "^4.21.18",
+    "@uniswap/v3-sdk": "^3.25.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "morgan": "^1.10.0",

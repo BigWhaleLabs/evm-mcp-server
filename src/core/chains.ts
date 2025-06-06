@@ -137,6 +137,21 @@ export const networkNameMap: Record<string, number> = {
   soneium: 1868,
 }
 
+export const networkUniswapRouterMap: Record<number, string> = {
+  1: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+  8453: '0x2626664c2603336E57B271c5C0b26F421741e481',
+  130: '0x73855d06de49d0fe4a9c42636ba96c62da12ff9c',
+  42161: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+  10: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+  137: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+  56: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
+  42220: '0x5615CDAb10dc425a742d643d949a7F474C01abc4',
+  81457: '0x549FEB8c9bd4c12Ad2AB27022dA12492aC452B66',
+  324: '0x99c56385daBCE3E81d8499d0b8d0257aBC07E8A3',
+  7777777: '0x7De04c96BE5159c3b5CeffC82aa176dc81281557',
+  103: '0x091AD9e2e6e5eD44c1c66dB50e49A601F9f36cF6',
+}
+
 // Map chain IDs to RPC URLs
 export const rpcUrlMap: Record<number, string> = {
   1: 'https://eth-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
