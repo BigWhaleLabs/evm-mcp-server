@@ -80,7 +80,7 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. ENS resolution works best on Ethereum mainnet. Defaults to Ethereum mainnet."
         ),
     },
-    async ({ ensName, network = 'base' }) => {
+    async ({ ensName, network = 'ethereum' }) => {
       try {
         // Validate that the input is an ENS name
         if (!ensName.includes('.')) {
