@@ -2099,7 +2099,7 @@ export function registerEVMTools(server: McpServer) {
         console.log(
           `Searching for route from ${tokenIn.symbol || tokenIn.address} to ${
             tokenOut.symbol || tokenOut.address
-          } at ${network}`
+          } at ${network}, ${chainId}`
         )
         const provider = new JsonRpcProvider(rpcUrlMap[chainId], chainId)
         const router = new AlphaRouter({
@@ -2121,6 +2121,7 @@ export function registerEVMTools(server: McpServer) {
             protocols: [Protocol.V3],
           }
         )
+        console.log(`Route found:`, route)
         if (!route?.route[0].route) {
           throw new Error('No route found')
         }
