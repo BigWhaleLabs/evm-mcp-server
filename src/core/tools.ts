@@ -2122,7 +2122,7 @@ export function registerEVMTools(server: McpServer) {
           {
             deadline: Math.floor(Date.now() / 1000 + 60),
             recipient: fromAddress,
-            slippageTolerance: new Percent(Number(10n), 10_000),
+            slippageTolerance: new Percent(Number(20n), 10_000),
             type: SwapType.SWAP_ROUTER_02,
           },
           {
@@ -2150,7 +2150,7 @@ export function registerEVMTools(server: McpServer) {
         }
         const param = {
           amountIn: BigInt(amountIn),
-          amountOutMinimum: (BigInt(amountIn) * 90n) / 100n, // 10% slippage
+          amountOutMinimum: (BigInt(amountIn) * 80n) / 100n, // 10% slippage
           path,
           recipient: fromAddress,
         } as {
