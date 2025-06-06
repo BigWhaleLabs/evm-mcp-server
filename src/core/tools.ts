@@ -32,7 +32,6 @@ export function registerEVMTools(server: McpServer) {
       try {
         const chainId = await services.getChainId(network)
         const blockNumber = await services.getBlockNumber(network)
-        const rpcUrl = getRpcUrl(network)
 
         return {
           content: [
@@ -43,7 +42,6 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   chainId,
                   blockNumber: blockNumber.toString(),
-                  rpcUrl,
                 },
                 null,
                 2
