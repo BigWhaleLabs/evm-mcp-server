@@ -405,7 +405,7 @@ export function registerEVMTools(server: McpServer) {
         .describe(
           "The contract address or ENS name of the ERC20 token (e.g., '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' for USDC or 'uniswap.eth')"
         ),
-      ownerAddress: z
+      address: z
         .string()
         .describe(
           "The wallet address or ENS name to check the balance for (e.g., '0x1234...' or 'vitalik.eth')"
@@ -417,7 +417,7 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
         ),
     },
-    async ({ tokenAddress, ownerAddress, network = 'base' }) => {
+    async ({ tokenAddress, address: ownerAddress, network = 'base' }) => {
       try {
         const balance = await services.getERC20Balance(
           tokenAddress,
