@@ -35,6 +35,15 @@ import { Protocol } from '@uniswap/router-sdk'
 import { encodeRouteToPath } from '@uniswap/v3-sdk'
 import uniswapRouterAbi from './uniswapRouterAbi.js'
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+function bigintReplacer(key: string, value: any) {
+  if (typeof value === 'bigint') {
+    return value.toString()
+  } else {
+    return value
+  }
+}
+
 /**
  * Register all EVM-related tools with the MCP server
  *
@@ -73,7 +82,7 @@ export function registerEVMTools(server: McpServer) {
                   chainId,
                   blockNumber: blockNumber.toString(),
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -142,7 +151,7 @@ export function registerEVMTools(server: McpServer) {
                   resolvedAddress: address,
                   network,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -181,7 +190,7 @@ export function registerEVMTools(server: McpServer) {
                 {
                   supportedNetworks: networks,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -316,7 +325,7 @@ export function registerEVMTools(server: McpServer) {
                   wei: balance.wei.toString(),
                   ether: balance.ether,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -373,7 +382,7 @@ export function registerEVMTools(server: McpServer) {
                     decimals: balance.token.decimals,
                   },
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -439,7 +448,7 @@ export function registerEVMTools(server: McpServer) {
                   symbol: balance.token.symbol,
                   decimals: balance.token.decimals,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -590,7 +599,7 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   estimatedGas: gas.toString(),
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -691,7 +700,7 @@ export function registerEVMTools(server: McpServer) {
                   amount,
                   network,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -794,7 +803,7 @@ export function registerEVMTools(server: McpServer) {
                   amount: result.amount.formatted,
                   symbol: result.token.symbol,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -903,7 +912,7 @@ export function registerEVMTools(server: McpServer) {
                   amount: result.amount.formatted,
                   symbol: result.token.symbol,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1016,7 +1025,7 @@ export function registerEVMTools(server: McpServer) {
                   name: result.token.name,
                   symbol: result.token.symbol,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1135,7 +1144,7 @@ export function registerEVMTools(server: McpServer) {
                   amount: result.amount,
                   recipient: toAddress,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1243,7 +1252,7 @@ export function registerEVMTools(server: McpServer) {
                   symbol: result.token.symbol,
                   network,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1440,7 +1449,7 @@ export function registerEVMTools(server: McpServer) {
   //                 transactionHash: txHash,
   //                 message: 'Contract write transaction sent successfully',
   //               },
-  //               null,
+  //               bigintReplacer,
   //               2
   //             ),
   //           },
@@ -1496,7 +1505,7 @@ export function registerEVMTools(server: McpServer) {
                     ? 'Contract'
                     : 'Externally Owned Account (EOA)',
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1552,7 +1561,7 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   ...tokenInfo,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1612,7 +1621,7 @@ export function registerEVMTools(server: McpServer) {
                     decimals: balance.token.decimals,
                   },
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1696,7 +1705,7 @@ export function registerEVMTools(server: McpServer) {
                   ...nftInfo,
                   owner: owner || 'Unknown',
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1765,7 +1774,7 @@ export function registerEVMTools(server: McpServer) {
                     ? 'Address owns this NFT'
                     : 'Address does not own this NFT',
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1828,7 +1837,7 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   uri,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1891,7 +1900,7 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   balance: balance.toString(),
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -1961,7 +1970,7 @@ export function registerEVMTools(server: McpServer) {
                   network,
                   balance: balance.toString(),
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
@@ -2182,7 +2191,7 @@ export function registerEVMTools(server: McpServer) {
                   success: true,
                   txHash: tx.data.hash as Hash,
                 },
-                null,
+                bigintReplacer,
                 2
               ),
             },
