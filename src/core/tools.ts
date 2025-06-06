@@ -2150,7 +2150,7 @@ export function registerEVMTools(server: McpServer) {
         }
         const param = {
           amountIn: BigInt(amountIn),
-          amountOutMinimum: (BigInt(amountIn) * 80n) / 100n, // 10% slippage
+          amountOutMinimum: 1n,
           path,
           recipient: fromAddress,
         } as {
