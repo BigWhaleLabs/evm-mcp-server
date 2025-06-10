@@ -1498,7 +1498,9 @@ export function registerEVMTools(server: McpServer) {
         ),
       amount: z
         .string()
-        .describe("Amount of ETH to wrap, as a string (e.g., '0.1')"),
+        .describe(
+          "Amount of ETH to wrap, as a bigint string (e.g., '1000000000000000000' for 1 ETH)"
+        ),
       network: z
         .string()
         .optional()
@@ -1590,7 +1592,9 @@ export function registerEVMTools(server: McpServer) {
         ),
       amount: z
         .string()
-        .describe("Amount of WETH to unwrap, as a string (e.g., '0.1')"),
+        .describe(
+          "Amount of WETH to unwrap, as a bigint string (e.g., '1000000000000000000' for 1 WETH)"
+        ),
       network: z
         .string()
         .optional()
