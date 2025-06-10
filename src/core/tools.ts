@@ -1471,6 +1471,189 @@ export function registerEVMTools(server: McpServer) {
   //   }
   // )
 
+  // Wrap ETH
+  server.tool(
+    'wrap_eth',
+    'Wrap ETH into WETH (Wrapped Ether) on EVM-compatible networks',
+    {
+      privyAppId: z
+        .string()
+        .describe(
+          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyAppSecret: z
+        .string()
+        .describe(
+          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyAuthorizationPrivateKey: z
+        .string()
+        .describe(
+          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyWalletId: z
+        .string()
+        .describe(
+          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      amount: z
+        .string()
+        .describe("Amount of ETH to wrap, as a string (e.g., '0.1')"),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Defaults to Base mainnet."
+        ),
+      wethAddress: z.string().describe('WETH contract address'),
+    },
+    async ({
+      privyAppId,
+      privyAppSecret,
+      privyAuthorizationPrivateKey,
+      privyWalletId,
+      amount,
+      network = 'base',
+      wethAddress,
+    }) => {
+      try {
+        const privyClient = services.getPrivyClient(
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey
+        )
+        const txHash = await services.wrapETH(
+          amount,
+          network,
+          privyClient,
+          privyWalletId,
+          wethAddress as Address
+        )
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  txHash,
+                  amount,
+                  network,
+                },
+                bigintReplacer,
+                2
+              ),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error wrapping ETH: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // Unwrap WETH to ETH
+  server.tool(
+    'unwrap_weth',
+    'Unwrap WETH (Wrapped Ether) back to ETH on EVM-compatible networks',
+    {
+      privyAppId: z
+        .string()
+        .describe(
+          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyAppSecret: z
+        .string()
+        .describe(
+          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyAuthorizationPrivateKey: z
+        .string()
+        .describe(
+          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      privyWalletId: z
+        .string()
+        .describe(
+          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
+        ),
+      amount: z
+        .string()
+        .describe("Amount of WETH to unwrap, as a string (e.g., '0.1')"),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Defaults to Base mainnet."
+        ),
+      wethAddress: z.string().describe('WETH contract address'),
+    },
+    async ({
+      privyAppId,
+      privyAppSecret,
+      privyAuthorizationPrivateKey,
+      privyWalletId,
+      amount,
+      network = 'base',
+      wethAddress,
+    }) => {
+      try {
+        const privyClient = services.getPrivyClient(
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey
+        )
+        const txHash = await services.unwrapWETH(
+          amount,
+          network,
+          privyClient,
+          privyWalletId,
+          wethAddress as Address
+        )
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  txHash,
+                  amount,
+                  network,
+                },
+                bigintReplacer,
+                2
+              ),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error unwrapping WETH: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
   // Check if address is a contract
   server.tool(
     'is_contract',

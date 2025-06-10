@@ -5,11 +5,13 @@ import {
   type ReadContractParameters,
   type GetLogsParameters,
   type Log,
+  encodeFunctionData,
 } from 'viem'
 import { getPublicClient } from './clients.js'
 import { resolveAddress } from './ens.js'
 import { PrivyClient } from '@privy-io/server-auth'
 import { networkNameMap } from '../chains.js'
+import wethAbi from '../wethAbi.js'
 
 /**
  * Read from a contract for a specific network
@@ -74,4 +76,67 @@ export async function isContract(
   const client = getPublicClient(network)
   const code = await client.getBytecode({ address })
   return code !== undefined && code !== '0x'
+}
+
+export async function wrapETH(
+  amount: string,
+  network: string,
+  privyClient: PrivyClient,
+  privyWalletId: string,
+  wethAddress: Address
+) {
+  const networkId = networkNameMap[network]
+
+  const tx = await privyClient.walletApi.rpc({
+    walletId: privyWalletId,
+    method: 'eth_sendTransaction',
+    caip2: `eip155:${networkId}`,
+    params: {
+      transaction: {
+        to: wethAddress,
+        value: BigInt(amount).toString(16) as Hex,
+        data: encodeFunctionData({
+          abi: wethAbi,
+          functionName: 'deposit',
+          args: [],
+        }),
+      },
+    },
+  })
+
+  if ('error' in tx) {
+    throw new Error(`Transaction failed: ${tx.error.message}`)
+  }
+  return tx.data.hash as `0x${string}`
+}
+
+export async function unwrapWETH(
+  amount: string,
+  network: string,
+  privyClient: PrivyClient,
+  privyWalletId: string,
+  wethAddress: Address
+) {
+  const networkId = networkNameMap[network]
+
+  const tx = await privyClient.walletApi.rpc({
+    walletId: privyWalletId,
+    method: 'eth_sendTransaction',
+    caip2: `eip155:${networkId}`,
+    params: {
+      transaction: {
+        to: wethAddress,
+        data: encodeFunctionData({
+          abi: wethAbi,
+          functionName: 'withdraw',
+          args: [BigInt(amount)],
+        }),
+      },
+    },
+  })
+
+  if ('error' in tx) {
+    throw new Error(`Transaction failed: ${tx.error.message}`)
+  }
+  return tx.data.hash as `0x${string}`
 }
