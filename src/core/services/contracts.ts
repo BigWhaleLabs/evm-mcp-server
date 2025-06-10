@@ -94,7 +94,7 @@ export async function wrapETH(
     params: {
       transaction: {
         to: wethAddress,
-        value: BigInt(amount).toString(16) as Hex,
+        value: `0x${BigInt(amount).toString(16)}` as Hex,
         data: encodeFunctionData({
           abi: wethAbi,
           functionName: 'deposit',
@@ -129,7 +129,7 @@ export async function unwrapWETH(
         data: encodeFunctionData({
           abi: wethAbi,
           functionName: 'withdraw',
-          args: [BigInt(amount)],
+          args: [`0x${BigInt(amount).toString(16)}` as Hex],
         }),
       },
     },
