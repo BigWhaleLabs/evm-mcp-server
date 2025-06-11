@@ -1,8 +1,8 @@
 import express from 'express'
 import morgan from 'morgan'
 import { randomUUID } from 'node:crypto'
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
+import { StreamableHTTPServerTransport } from '@big-whale-labs/modelcontextprotocol-sdk/server/streamableHttp.js'
+import { isInitializeRequest } from '@big-whale-labs/modelcontextprotocol-sdk/types.js'
 import startServer from './server.js'
 
 const app = express()

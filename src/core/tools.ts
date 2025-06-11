@@ -1,21 +1,13 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
 import { z } from 'zod'
 import {
   getSupportedNetworks,
-  getRpcUrl,
   networkNameMap,
   networkUniswapRouterMap,
   rpcUrlMap,
 } from './chains.js'
 import * as services from './services/index.js'
-import {
-  type Address,
-  type Hex,
-  type Hash,
-  encodeFunctionData,
-  createPublicClient,
-  erc20Abi,
-} from 'viem'
+import { type Address, type Hash, encodeFunctionData, erc20Abi } from 'viem'
 import { normalize } from 'viem/ens'
 import {
   ChainId,
@@ -34,6 +26,11 @@ import {
 import { Protocol } from '@uniswap/router-sdk'
 import { encodeRouteToPath } from '@uniswap/v3-sdk'
 import uniswapRouterAbi from './uniswapRouterAbi.js'
+import { RequestHandlerExtra } from '@big-whale-labs/modelcontextprotocol-sdk/shared/protocol.js'
+import {
+  ServerNotification,
+  ServerRequest,
+} from '@big-whale-labs/modelcontextprotocol-sdk/types.js'
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 function bigintReplacer(key: string, value: any) {
@@ -41,6 +38,28 @@ function bigintReplacer(key: string, value: any) {
     return value.toString()
   } else {
     return value
+  }
+}
+
+function extractPrivyHeaders(
+  extra: RequestHandlerExtra<ServerRequest, ServerNotification>
+): {
+  privyAppId: string
+  privyAppSecret: string
+  privyAuthorizationPrivateKey: string
+  privyWalletId: string
+} {
+  const headers = extra.requestHeaders
+  return {
+    privyAppId: headers['X-Privy-App-Id'],
+    privyAppSecret: headers['X-Privy-App-Secret'],
+    privyAuthorizationPrivateKey: headers['X-Privy-Authorization-Private-Key'],
+    privyWalletId: headers['X-Privy-Wallet-Id'],
+  } as {
+    privyAppId: string
+    privyAppSecret: string
+    privyAuthorizationPrivateKey: string
+    privyWalletId: string
   }
 }
 
@@ -628,26 +647,6 @@ export function registerEVMTools(server: McpServer) {
     'transfer_eth',
     'Transfer native tokens (ETH, MATIC, etc.) to an address',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       to: z
         .string()
         .describe(
@@ -665,15 +664,13 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
         ),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      to,
-      amount,
-      network = 'base',
-    }) => {
+    async ({ to, amount, network = 'base' }, extra) => {
+      const {
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey,
+        privyWalletId,
+      } = extractPrivyHeaders(extra)
       try {
         const privyClient = services.getPrivyClient(
           privyAppId,
@@ -727,26 +724,6 @@ export function registerEVMTools(server: McpServer) {
     'transfer_erc20',
     'Transfer ERC20 tokens to another address',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       tokenAddress: z
         .string()
         .describe('The address of the ERC20 token contract'),
@@ -763,16 +740,13 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
         ),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      tokenAddress,
-      toAddress,
-      amount,
-      network = 'base',
-    }) => {
+    async ({ tokenAddress, toAddress, amount, network = 'base' }, extra) => {
+      const {
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey,
+        privyWalletId,
+      } = extractPrivyHeaders(extra)
       try {
         const privyClient = services.getPrivyClient(
           privyAppId,
@@ -830,26 +804,6 @@ export function registerEVMTools(server: McpServer) {
     'approve_token_spending',
     'Approve another address (like a DeFi protocol or exchange) to spend your ERC20 tokens. This is often required before interacting with DeFi protocols.',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       tokenAddress: z
         .string()
         .describe(
@@ -872,16 +826,16 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Base mainnet."
         ),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      tokenAddress,
-      spenderAddress,
-      amount,
-      network = 'base',
-    }) => {
+    async (
+      { tokenAddress, spenderAddress, amount, network = 'base' },
+      extra
+    ) => {
+      const {
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey,
+        privyWalletId,
+      } = extractPrivyHeaders(extra)
       try {
         const privyClient = services.getPrivyClient(
           privyAppId,
@@ -939,26 +893,6 @@ export function registerEVMTools(server: McpServer) {
     'transfer_nft',
     'Transfer an NFT (ERC721 token) from one address to another. Requires the private key of the current owner for signing the transaction.',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       fromAddress: z
         .string()
         .describe(
@@ -982,17 +916,16 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Most NFTs are on Ethereum mainnet, which is the default."
         ),
     },
-    async ({
-      fromAddress,
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      tokenAddress,
-      tokenId,
-      toAddress,
-      network = 'base',
-    }) => {
+    async (
+      { fromAddress, tokenAddress, tokenId, toAddress, network = 'base' },
+      extra
+    ) => {
+      const {
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey,
+        privyWalletId,
+      } = extractPrivyHeaders(extra)
       try {
         const privyClient = services.getPrivyClient(
           privyAppId,
@@ -1052,26 +985,6 @@ export function registerEVMTools(server: McpServer) {
     'transfer_erc1155',
     'Transfer ERC1155 tokens to another address. ERC1155 is a multi-token standard that can represent both fungible and non-fungible tokens in a single contract.',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       fromAddress: z
         .string()
         .describe(
@@ -1100,19 +1013,24 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. ERC1155 tokens exist across many networks. Defaults to Ethereum mainnet."
         ),
     },
-    async ({
-      fromAddress,
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      tokenAddress,
-      tokenId,
-      amount,
-      toAddress,
-      network = 'base',
-    }) => {
+    async (
+      {
+        fromAddress,
+        tokenAddress,
+        tokenId,
+        amount,
+        toAddress,
+        network = 'base',
+      },
+      extra
+    ) => {
       try {
+        const {
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey,
+          privyWalletId,
+        } = extractPrivyHeaders(extra)
         const privyClient = services.getPrivyClient(
           privyAppId,
           privyAppSecret,
@@ -1171,26 +1089,6 @@ export function registerEVMTools(server: McpServer) {
     'transfer_token',
     'Transfer ERC20 tokens to an address',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       tokenAddress: z
         .string()
         .describe(
@@ -1213,17 +1111,14 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
         ),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      tokenAddress,
-      toAddress,
-      amount,
-      network = 'base',
-    }) => {
+    async ({ tokenAddress, toAddress, amount, network = 'base' }, extra) => {
       try {
+        const {
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey,
+          privyWalletId,
+        } = extractPrivyHeaders(extra)
         const privyClient = services.getPrivyClient(
           privyAppId,
           privyAppSecret,
@@ -1374,26 +1269,6 @@ export function registerEVMTools(server: McpServer) {
   //       .describe(
   //         "The arguments to pass to the function, as an array (e.g., ['0x1234...', '1000000000000000000'])"
   //       ),
-  //     privyAppId: z
-  //       .string()
-  //       .describe(
-  //         'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-  //       ),
-  //     privyAppSecret: z
-  //       .string()
-  //       .describe(
-  //         'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-  //       ),
-  //     privyAuthorizationPrivateKey: z
-  //       .string()
-  //       .describe(
-  //         'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-  //       ),
-  //     privyWalletId: z
-  //       .string()
-  //       .describe(
-  //         'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-  //       ),
   //     network: z
   //       .string()
   //       .optional()
@@ -1406,10 +1281,6 @@ export function registerEVMTools(server: McpServer) {
   //     abi,
   //     functionName,
   //     args,
-  //     privyAppId,
-  //     privyAppSecret,
-  //     privyAuthorizationPrivateKey,
-  //     privyWalletId,
   //     network = 'base',
   //   }) => {
   //     try {
@@ -1476,26 +1347,6 @@ export function registerEVMTools(server: McpServer) {
     'wrap_eth',
     'Wrap ETH into WETH (Wrapped Ether) on EVM-compatible networks',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       amount: z
         .string()
         .describe(
@@ -1509,16 +1360,14 @@ export function registerEVMTools(server: McpServer) {
         ),
       wethAddress: z.string().describe('WETH contract address'),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      amount,
-      network = 'base',
-      wethAddress,
-    }) => {
+    async ({ amount, network = 'base', wethAddress }, extra) => {
       try {
+        const {
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey,
+          privyWalletId,
+        } = extractPrivyHeaders(extra)
         const privyClient = services.getPrivyClient(
           privyAppId,
           privyAppSecret,
@@ -1570,26 +1419,6 @@ export function registerEVMTools(server: McpServer) {
     'unwrap_weth',
     'Unwrap WETH (Wrapped Ether) back to ETH on EVM-compatible networks',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       amount: z
         .string()
         .describe(
@@ -1603,16 +1432,14 @@ export function registerEVMTools(server: McpServer) {
         ),
       wethAddress: z.string().describe('WETH contract address'),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      amount,
-      network = 'base',
-      wethAddress,
-    }) => {
+    async ({ amount, network = 'base', wethAddress }, extra) => {
       try {
+        const {
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey,
+          privyWalletId,
+        } = extractPrivyHeaders(extra)
         const privyClient = services.getPrivyClient(
           privyAppId,
           privyAppSecret,
@@ -2186,26 +2013,6 @@ export function registerEVMTools(server: McpServer) {
     'swap_erc20',
     'Swap ERC20 tokens using a decentralized exchange, Uniswap. This tool allows you to swap one ERC20 token for another.',
     {
-      privyAppId: z
-        .string()
-        .describe(
-          'Privy app ID for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAppSecret: z
-        .string()
-        .describe(
-          'Privy app secret for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyAuthorizationPrivateKey: z
-        .string()
-        .describe(
-          'Privy authorization private key for the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
-      privyWalletId: z
-        .string()
-        .describe(
-          'Privy wallet ID of the sender account. SECURITY: This is used only for transaction signing and is not stored.'
-        ),
       fromAddress: z
         .string()
         .describe(
@@ -2235,20 +2042,25 @@ export function registerEVMTools(server: McpServer) {
           "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
         ),
     },
-    async ({
-      privyAppId,
-      privyAppSecret,
-      privyAuthorizationPrivateKey,
-      privyWalletId,
-      fromAddress,
-      tokenInAddress,
-      tokenInDecimals,
-      tokenOutAddress,
-      tokenOutDecimals,
-      amountIn,
-      network = 'base',
-    }) => {
+    async (
+      {
+        fromAddress,
+        tokenInAddress,
+        tokenInDecimals,
+        tokenOutAddress,
+        tokenOutDecimals,
+        amountIn,
+        network = 'base',
+      },
+      extra
+    ) => {
       try {
+        const {
+          privyAppId,
+          privyAppSecret,
+          privyAuthorizationPrivateKey,
+          privyWalletId,
+        } = extractPrivyHeaders(extra)
         const privyClient = services.getPrivyClient(
           privyAppId,
           privyAppSecret,
