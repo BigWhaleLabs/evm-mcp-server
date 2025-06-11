@@ -51,10 +51,10 @@ function extractPrivyHeaders(
 } {
   const headers = extra.requestHeaders
   return {
-    privyAppId: headers['X-Privy-App-Id'],
-    privyAppSecret: headers['X-Privy-App-Secret'],
-    privyAuthorizationPrivateKey: headers['X-Privy-Authorization-Private-Key'],
-    privyWalletId: headers['X-Privy-Wallet-Id'],
+    privyAppId: headers['x-privy-app-id'],
+    privyAppSecret: headers['x-privy-app-secret'],
+    privyAuthorizationPrivateKey: headers['x-privy-authorization-private-key'],
+    privyWalletId: headers['x-privy-wallet-id'],
   } as {
     privyAppId: string
     privyAppSecret: string
