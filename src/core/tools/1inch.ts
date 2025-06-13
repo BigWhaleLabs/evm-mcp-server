@@ -127,6 +127,8 @@ export default function register1InchTools(server: McpServer) {
           blockchainProvider: providerConnector,
         })
 
+        console.log('Fetching quote for cross-chain swap with params:', params)
+
         const quote = await sdk.getQuote(params)
         const secretsCount = quote.getPreset().secretsCount
         console.log(
