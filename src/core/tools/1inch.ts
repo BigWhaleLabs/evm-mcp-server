@@ -88,6 +88,9 @@ export default function register1InchTools(server: McpServer) {
             walletAddress: string,
             typedData: EIP712TypedData
           ) {
+            console.log(
+              `Signing typed data for wallet ${walletAddress} on chain ${srcChainId}`
+            )
             return (
               await privyClient.walletApi.ethereum.signTypedData({
                 walletId: privyWalletId,
@@ -96,6 +99,9 @@ export default function register1InchTools(server: McpServer) {
             ).signature
           },
           async ethCall(contractAddress: string, callData: string) {
+            console.log(
+              `Calling contract ${contractAddress} with data ${callData} on chain ${srcChainId}`
+            )
             const publicClient = services.getPublicClientForChainId(srcChainId)
             const resultingData = (
               await publicClient.call({
