@@ -50,7 +50,7 @@
     "@uniswap/v3-sdk": "^3.25.2",
     "cors": "^2.8.5",
     "ethers": "5.7.2",
-    "ethersv6": "npm:ethers",
+    "ethersv6": "npm:ethers@6.14.4",
     "express": "^4.21.2",
     "morgan": "^1.10.0",
     "viem": "^2.31.0",
