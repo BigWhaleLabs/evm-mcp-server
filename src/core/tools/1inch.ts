@@ -112,7 +112,9 @@ export default function register1InchTools(server: McpServer) {
             return resultingData as `0x${string}`
           },
         }
-
+        console.log(
+          `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress}`
+        )
         const sdk = new SDK({
           url: 'https://api.1inch.dev/fusion-plus',
           authKey: process.env.ONE_INCH_API_KEY,
@@ -121,6 +123,9 @@ export default function register1InchTools(server: McpServer) {
 
         const quote = await sdk.getQuote(params)
         const secretsCount = quote.getPreset().secretsCount
+        console.log(
+          `Quote received with ${secretsCount} secrets for cross-chain swap`
+        )
 
         const secrets = Array.from({ length: secretsCount }).map(
           () => '0x' + Buffer.from(randomBytes(32)).toString('hex')
@@ -146,6 +151,9 @@ export default function register1InchTools(server: McpServer) {
           hashLock,
           secretHashes,
         })
+        console.log(
+          `Cross-chain swap quote placed successfully! Quote response: ${quoteResponse}`
+        )
 
         const orderHash = quoteResponse.orderHash
 
