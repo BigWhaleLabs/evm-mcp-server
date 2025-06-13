@@ -154,37 +154,11 @@ export default function register1InchTools(server: McpServer) {
                   _tag: 'MerkleLeaf'
                 })[]
               )
-        let quoteResponse: OrderInfo
-        try {
-          quoteResponse = await sdk.placeOrder(quote, {
-            walletAddress: fromAddress,
-            hashLock,
-            secretHashes,
-          })
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            console.error(`Error placing cross-chain swap quote:`, {
-              message: error.message,
-              status: error.response?.status,
-              statusText: error.response?.statusText,
-              data: error.response?.data,
-              headers: error.response?.headers,
-              config: {
-                url: error.config?.url,
-                method: error.config?.method,
-                params: error.config?.params,
-                data: error.config?.data,
-              },
-            })
-          } else {
-            console.error(`Error placing cross-chain swap quote:`, error)
-          }
-          throw new Error(
-            `Failed to place cross-chain swap quote: ${
-              error instanceof Error ? error.message : String(error)
-            }`
-          )
-        }
+        const quoteResponse = await sdk.placeOrder(quote, {
+          walletAddress: fromAddress,
+          hashLock,
+          secretHashes,
+        })
         console.log(
           `Cross-chain swap quote placed successfully! Quote response: ${quoteResponse}`
         )
@@ -208,6 +182,31 @@ export default function register1InchTools(server: McpServer) {
           ],
         }
       } catch (error) {
+        if (error instanceof AxiosError) {
+          console.log(
+            `Error placing cross-chain swap quote: ${error.message}`,
+            error.response?.data
+          )
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error placing cross-chain swap quote: ${{
+                  message: error.message,
+                  status: error.response?.status,
+                  statusText: error.response?.statusText,
+                  data: error.response?.data,
+                }}`,
+              },
+            ],
+            isError: true,
+          }
+        }
+        console.error(
+          `Error placing cross-chain swap quote: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        )
         return {
           content: [{ type: 'text', text: `Error: ${error}` }],
           isError: true,
