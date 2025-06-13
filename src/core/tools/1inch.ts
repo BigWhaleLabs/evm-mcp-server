@@ -23,6 +23,60 @@ import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
 import { AxiosError } from 'axios'
 
 export default function register1InchTools(server: McpServer) {
+  // Get cross chain swap orders by address
+  server.tool(
+    'get_cross_chain_swap_orders_by_address',
+    'Get cross chain swap orders by address',
+    {
+      address: z
+        .string()
+        .describe(
+          "The user's wallet address to fetch orders for (e.g., '0x1234...')"
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for pagination, defaults to 1 if not provided'),
+    },
+    async ({ address, page = 1 }) => {
+      try {
+        const fusionSdk = new SDK({
+          url: 'https://api.1inch.dev/fusion-plus',
+          authKey: process.env.ONE_INCH_API_KEY,
+        })
+        const orders = await fusionSdk.getOrdersByMaker({
+          address,
+          page,
+        })
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(orders, bigintReplacer, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        console.error(
+          `Error initializing 1inch Fusion SDK: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        )
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error initializing 1inch Fusion SDK: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
   // Cross chain swap
   server.tool(
     'cross_chain_swap',
