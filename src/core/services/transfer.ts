@@ -6,8 +6,9 @@ import {
   type Hex,
   getContract,
   encodeFunctionData,
+  erc20Abi,
 } from 'viem'
-import { getPublicClient } from './clients.js'
+import { getPublicClient, getPublicClientForChainId } from './clients.js'
 import { resolveAddress } from './ens.js'
 import { PrivyClient } from '@privy-io/server-auth'
 import { networkNameMap } from '../chains.js'
@@ -253,6 +254,31 @@ export async function transferERC20(
       decimals,
     },
   }
+}
+
+// Check erc20 allowance
+export async function getERC20Allowance(
+  tokenAddress: Address,
+  ownerAddress: Address,
+  spenderAddress: Address,
+  networkId: number
+): Promise<bigint> {
+  const publicClient = getPublicClientForChainId(networkId)
+  const contract = getContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    client: publicClient,
+  })
+
+  // Get the allowance
+  const allowance = await contract.read.allowance([
+    ownerAddress,
+    spenderAddress,
+  ])
+  if (typeof allowance !== 'bigint') {
+    throw new Error('Invalid allowance response from contract')
+  }
+  return allowance
 }
 
 /**

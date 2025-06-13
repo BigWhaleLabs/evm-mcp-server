@@ -18,7 +18,7 @@ import {
 import extractPrivyHeaders from '../helpers/extractPrivyHeaders.js'
 import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
-import { networkNameMap } from '../chains.js'
+import { getNetworkNameById, networkNameMap } from '../chains.js'
 import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
 import { AxiosError } from 'axios'
 
@@ -119,6 +119,28 @@ export default function register1InchTools(server: McpServer) {
             }
             return resultingData as `0x${string}`
           },
+        }
+        // Checking allowance
+        const spender =
+          srcChainId === 324
+            ? '0x6fd4383cb451173d5f9304f041c7bcbf27d561ff'
+            : '0x111111125421ca6dc452d289314280a0f8842a65'
+        const allowance = await services.getERC20Allowance(
+          srcTokenAddress as Address,
+          fromAddress as Address,
+          spender,
+          srcChainId
+        )
+        if (BigInt(allowance) < BigInt(amount)) {
+          // If allowance is not enough, we need to approve the spender
+          await services.approveERC20(
+            srcTokenAddress as Address,
+            spender,
+            amount,
+            getNetworkNameById(srcChainId),
+            privyClient,
+            privyWalletId
+          )
         }
         console.log(
           `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress} with ${process.env.ONE_INCH_API_KEY} API key`

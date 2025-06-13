@@ -137,6 +137,14 @@ export const networkNameMap: Record<string, number> = {
   soneium: 1868,
 }
 
+export function getNetworkNameById(chainId: number): string {
+  // Find the network name by chain ID
+  const networkName = Object.keys(networkNameMap).find(
+    (name) => networkNameMap[name] === chainId
+  )
+  return networkName || 'Unknown Network'
+}
+
 export const networkUniswapRouterMap: Record<number, string> = {
   1: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
   8453: '0x2626664c2603336E57B271c5C0b26F421741e481',
@@ -288,4 +296,12 @@ export function getSupportedNetworks(): string[] {
   return Object.keys(networkNameMap)
     .filter((name) => name.length > 2) // Filter out short aliases
     .sort()
+}
+
+export function getChainNameById(chainId: number) {
+  const chain = chainMap[chainId]
+  if (chain) {
+    return chain.name
+  }
+  return 'Unknown Chain'
 }
