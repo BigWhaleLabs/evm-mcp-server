@@ -119,7 +119,7 @@ export default function register1InchTools(server: McpServer) {
           },
         }
         console.log(
-          `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress}`
+          `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress} with ${process.env.ONE_INCH_API_KEY} API key`
         )
         const sdk = new SDK({
           url: 'https://api.1inch.dev/fusion-plus',
