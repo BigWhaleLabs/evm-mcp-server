@@ -7,7 +7,7 @@ import {
   EIP712TypedData,
   HashLock,
 } from '@1inch/cross-chain-sdk'
-import { randomBytes, solidityPackedKeccak256 } from 'ethers'
+import { randomBytes, solidityPackedKeccak256 } from 'ethersv6'
 import {
   MakerTraits,
   Sdk,
