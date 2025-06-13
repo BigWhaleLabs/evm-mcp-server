@@ -20,6 +20,7 @@ import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
 import { networkNameMap } from '../chains.js'
 import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
+import { AxiosError } from 'axios'
 
 export default function register1InchTools(server: McpServer) {
   // Cross chain swap
@@ -161,7 +162,23 @@ export default function register1InchTools(server: McpServer) {
             secretHashes,
           })
         } catch (error) {
-          console.error(`Error placing cross-chain swap quote: ${error}`)
+          if (error instanceof AxiosError) {
+            console.error(`Error placing cross-chain swap quote:`, {
+              message: error.message,
+              status: error.response?.status,
+              statusText: error.response?.statusText,
+              data: error.response?.data,
+              headers: error.response?.headers,
+              config: {
+                url: error.config?.url,
+                method: error.config?.method,
+                params: error.config?.params,
+                data: error.config?.data,
+              },
+            })
+          } else {
+            console.error(`Error placing cross-chain swap quote:`, error)
+          }
           throw new Error(
             `Failed to place cross-chain swap quote: ${
               error instanceof Error ? error.message : String(error)
