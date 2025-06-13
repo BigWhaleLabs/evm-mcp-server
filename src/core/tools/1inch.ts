@@ -6,6 +6,7 @@ import {
   SDK,
   EIP712TypedData,
   HashLock,
+  OrderInfo,
 } from '@1inch/cross-chain-sdk'
 import { randomBytes, solidityPackedKeccak256 } from 'ethersv6'
 import {
@@ -152,12 +153,21 @@ export default function register1InchTools(server: McpServer) {
                   _tag: 'MerkleLeaf'
                 })[]
               )
-
-        const quoteResponse = await sdk.placeOrder(quote, {
-          walletAddress: fromAddress,
-          hashLock,
-          secretHashes,
-        })
+        let quoteResponse: OrderInfo
+        try {
+          quoteResponse = await sdk.placeOrder(quote, {
+            walletAddress: fromAddress,
+            hashLock,
+            secretHashes,
+          })
+        } catch (error) {
+          console.error(`Error placing cross-chain swap quote: ${error}`)
+          throw new Error(
+            `Failed to place cross-chain swap quote: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          )
+        }
         console.log(
           `Cross-chain swap quote placed successfully! Quote response: ${quoteResponse}`
         )
