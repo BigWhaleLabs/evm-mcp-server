@@ -24,7 +24,7 @@ export default function register1InchTools(server: McpServer) {
   // Cross chain swap
   server.tool(
     'cross_chain_swap',
-    'Swap tokens across different EVM chains using 1inch Fusion+',
+    'Swap tokens across different EVM chains (networks) using 1inch Fusion+, use this when users want to move tokens between networks',
     {
       srcChainId: z.number().describe('Source chain ID, e.g., 1 for Ethereum'),
       dstChainId: z
@@ -42,7 +42,9 @@ export default function register1InchTools(server: McpServer) {
         ),
       amount: z
         .string()
-        .describe('Amount to swap in base units, e.g., "1000000" for 1 USDC'),
+        .describe(
+          'Amount of srcTokenAddress to swap in base units, e.g., "1000000" for 1 USDC'
+        ),
       fromAddress: z
         .string()
         .describe("The current owner's wallet address (e.g., '0x1234...')"),
