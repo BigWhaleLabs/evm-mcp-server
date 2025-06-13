@@ -1,6 +1,6 @@
 import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
 import { registerEVMResources } from '../core/resources.js'
-import { registerEVMTools } from '../core/tools.js'
+import { registerEVMTools } from '../core/tools/index.js'
 import { registerEVMPrompts } from '../core/prompts.js'
 import { getSupportedNetworks } from '../core/chains.js'
 
