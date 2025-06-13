@@ -121,13 +121,12 @@ export default function register1InchTools(server: McpServer) {
         console.log(
           `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress} with ${process.env.ONE_INCH_API_KEY} API key`
         )
+        console.log('Fetching quote for cross-chain swap with params:', params)
         const sdk = new SDK({
           url: 'https://api.1inch.dev/fusion-plus',
           authKey: process.env.ONE_INCH_API_KEY,
           blockchainProvider: providerConnector,
         })
-
-        console.log('Fetching quote for cross-chain swap with params:', params)
 
         const quote = await sdk.getQuote(params)
         const secretsCount = quote.getPreset().secretsCount
