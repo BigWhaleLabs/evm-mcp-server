@@ -28,5 +28,5 @@ export function registerEVMTools(server: McpServer) {
   registerContractTools(server)
   registerTokenTools(server)
   registerSwapTools(server)
-  register1InchTools(server)
+  // register1InchTools(server)
 }
