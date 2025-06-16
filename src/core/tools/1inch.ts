@@ -6,7 +6,6 @@ import {
   SDK,
   EIP712TypedData,
   HashLock,
-  OrderInfo,
 } from '@1inch/cross-chain-sdk'
 import { randomBytes, solidityPackedKeccak256 } from 'ethersv6'
 import {
@@ -21,6 +20,7 @@ import bigintReplacer from '../helpers/bigintReplacer.js'
 import { getNetworkNameById, networkNameMap } from '../chains.js'
 import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
 import { AxiosError } from 'axios'
+import { redis } from 'bun'
 
 export default function register1InchTools(server: McpServer) {
   // Get cross chain swap orders by address
@@ -240,6 +240,11 @@ export default function register1InchTools(server: McpServer) {
         )
 
         const orderHash = quoteResponse.orderHash
+
+        await redis.set(
+          `cross_chain_swap_order:${orderHash}`,
+          JSON.stringify(secrets)
+        )
 
         const result = {
           success: true,
