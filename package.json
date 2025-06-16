@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir build --target node",
+    "build": "bun build src/index.ts --outdir build --target bun",
     "build:http": "bun build src/server/http-server.ts --outdir build --target node --outfile http-server.js",
     "dev": "bun --watch src/index.ts",
     "start:http": "bun run src/server/http-server.ts",
