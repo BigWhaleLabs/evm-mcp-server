@@ -416,6 +416,15 @@ export default function register1InchTools(server: McpServer) {
         })
         console.log('Got the SDK initialized successfully')
 
+        console.log(`Creating limit order with the following details:
+          \nMaker Asset: ${makerAssetAddress}
+          \nTaker Asset: ${takerAssetAddress}
+          \nMaking Amount: ${makingAmount}
+          \nTaking Amount: ${takingAmount}
+          \nMaker Address: ${fromAddress}
+          \nExpiration: ${expiration}
+          \nMaker Traits: ${JSON.stringify(makerTraits, bigintReplacer, 2)}`)
+
         const order = await sdk.createOrder(
           {
             makerAsset: new Address1Inch(makerAssetAddress),
