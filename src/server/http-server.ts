@@ -128,7 +128,7 @@ setInterval(async () => {
         url: 'https://api.1inch.dev/fusion-plus',
         authKey: process.env.ONE_INCH_API_KEY,
       })
-      const orderHash = orderHashKey.split(':')[2]
+      const orderHash = orderHashKey.split(':')[1]
       const orderStatus = await fusionSdk.getOrderStatus(orderHash)
       // Check if order is completed
       if (
