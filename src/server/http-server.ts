@@ -6,6 +6,7 @@ import { isInitializeRequest } from '@big-whale-labs/modelcontextprotocol-sdk/ty
 import startServer from './server.js'
 import { redis } from 'bun'
 import { OrderStatus, SDK } from '@1inch/cross-chain-sdk'
+import { AxiosError } from 'axios'
 
 const app = express()
 app.use(express.json())
@@ -163,7 +164,12 @@ setInterval(async () => {
       }
     }
   } catch (error) {
-    console.error('Error checking orders:', error)
+    console.error(
+      'Error checking orders:',
+      error instanceof AxiosError
+        ? `${error.message}, ${error.response?.data}`
+        : error
+    )
   } finally {
     checking = false
   }
