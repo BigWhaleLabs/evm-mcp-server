@@ -380,7 +380,13 @@ export default function register1InchTools(server: McpServer) {
           spender,
           networkNameMap[network]
         )
+        console.log(
+          `Got allowance for ${makerAssetAddress} from ${fromAddress} to ${spender} on network ${networkNameMap[network]}: ${allowance}`
+        )
         if (BigInt(allowance) < BigInt(makingAmount)) {
+          console.log(
+            `Allowance for ${makerAssetAddress} is not enough, current: ${allowance}, required: ${makingAmount}`
+          )
           // If allowance is not enough, we need to approve the spender
           await services.approveERC20(
             makerAssetAddress as Address,
@@ -391,6 +397,9 @@ export default function register1InchTools(server: McpServer) {
             privyWalletId
           )
         }
+        console.log(
+          `Placing limit order for ${makingAmount} of ${makerAssetAddress} to receive ${takingAmount} of ${takerAssetAddress} from ${fromAddress} on network ${networkNameMap[network]}`
+        )
 
         const sdk = new Sdk({
           authKey: process.env.ONE_INCH_API_KEY as string,
@@ -408,6 +417,13 @@ export default function register1InchTools(server: McpServer) {
           },
           makerTraits
         )
+        console.log(
+          `Limit order created successfully! Order details: ${JSON.stringify(
+            order,
+            bigintReplacer,
+            2
+          )}`
+        )
 
         const networkId = networkNameMap[network]
         const typedData = order.getTypedData(networkId)
@@ -419,6 +435,7 @@ export default function register1InchTools(server: McpServer) {
         ).signature
 
         await sdk.submitOrder(order, signature)
+        console.log(`Limit order submitted successfully!`)
 
         return {
           content: [
