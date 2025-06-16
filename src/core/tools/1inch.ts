@@ -80,7 +80,7 @@ export default function register1InchTools(server: McpServer) {
   // Cross chain swap
   server.tool(
     'cross_chain_swap',
-    'Swap tokens across different EVM chains (networks) using 1inch Fusion+, use this when users want to move tokens between networks',
+    'Swap tokens across different EVM chains (networks) using 1inch Fusion+, use this when users want to move tokens between networks or bridge them',
     {
       srcChainId: z.number().describe('Source chain ID, e.g., 1 for Ethereum'),
       dstChainId: z
