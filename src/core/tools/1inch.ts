@@ -369,6 +369,29 @@ export default function register1InchTools(server: McpServer) {
           .withExpiration(expiration)
           .withNonce(randBigInt(UINT_40_MAX))
 
+        // Checking allowance
+        const spender =
+          networkNameMap[network] === 324
+            ? '0x6fd4383cb451173d5f9304f041c7bcbf27d561ff'
+            : '0x111111125421ca6dc452d289314280a0f8842a65'
+        const allowance = await services.getERC20Allowance(
+          makerAssetAddress as Address,
+          fromAddress as Address,
+          spender,
+          networkNameMap[network]
+        )
+        if (BigInt(allowance) < BigInt(makingAmount)) {
+          // If allowance is not enough, we need to approve the spender
+          await services.approveERC20(
+            makerAssetAddress as Address,
+            spender,
+            makingAmount,
+            network,
+            privyClient,
+            privyWalletId
+          )
+        }
+
         const sdk = new Sdk({
           authKey: process.env.ONE_INCH_API_KEY as string,
           networkId: 1,
