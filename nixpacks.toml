@@ -1,0 +1,5 @@
+[variables]
+NODE_ENV = "production"
+
+[start]
+cmd = "bun start:http"
