@@ -414,6 +414,7 @@ export default function register1InchTools(server: McpServer) {
           networkId: 1,
           httpConnector: new FetchProviderConnector(),
         })
+        console.log('Got the SDK initialized successfully')
 
         const order = await sdk.createOrder(
           {
