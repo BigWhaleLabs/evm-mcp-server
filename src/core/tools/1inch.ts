@@ -364,11 +364,11 @@ export default function register1InchTools(server: McpServer) {
         const expiresIn = BigInt(expiresInSeconds)
         const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn
 
-        const UINT_40_MAX = (1n << 48n) - 1n
+        const UINT_20_MAX = (1n << 20n) - 1n
         console.log('Placing limit order')
         const makerTraits = MakerTraits.default()
           .withExpiration(expiration)
-          .withNonce(randBigInt(UINT_40_MAX))
+          .withNonce(randBigInt(UINT_20_MAX))
         console.log(
           `Using maker traits: ${JSON.stringify(
             makerTraits,
