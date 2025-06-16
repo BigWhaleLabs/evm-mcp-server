@@ -56,6 +56,11 @@ setInterval(async () => {
       const fillsObject = await fusionSdk.getReadyToAcceptSecretFills(orderHash)
       for (const fill of fillsObject.fills) {
         try {
+          console.log(
+            `Submitting secret for order ${orderHash} fill ${
+              fill.idx
+            } with secret ${secrets[fill.idx]}`
+          )
           await fusionSdk.submitSecret(orderHash, secrets[fill.idx])
         } catch (error) {
           console.error(
