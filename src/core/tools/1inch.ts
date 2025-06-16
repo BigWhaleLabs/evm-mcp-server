@@ -299,7 +299,7 @@ export default function register1InchTools(server: McpServer) {
   // Limit orders
   server.tool(
     'place_limit_order',
-    'Place a limit order for an ERC20 token swap, it will either be executed for the specified amounts or will be refunded by the expiration time; you need to know the price of both tokens in advance to calculate the correct amounts.',
+    'Place a limit order for an ERC20 token swap, it will either be executed for the specified amounts or will be refunded by the expiration time; you need to know the price of both tokens in advance to calculate the correct amounts. Ask the user for when to expire the order, it defaults to 10 days from now.',
     {
       fromAddress: z
         .string()
@@ -334,7 +334,8 @@ export default function register1InchTools(server: McpServer) {
         ),
       expiresInSeconds: z
         .number()
-        .describe('Expiration time in seconds from now.'),
+        .optional()
+        .describe('Expiration time in seconds from now. Default is 10 days'),
     },
     async (
       {
@@ -344,7 +345,7 @@ export default function register1InchTools(server: McpServer) {
         takerAssetAddress,
         makingAmount,
         takingAmount,
-        expiresInSeconds,
+        expiresInSeconds = 864000, // Default to 10 days
       },
       extra
     ) => {
