@@ -365,10 +365,17 @@ export default function register1InchTools(server: McpServer) {
         const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn
 
         const UINT_40_MAX = (1n << 48n) - 1n
-
+        console.log('Placing limit order')
         const makerTraits = MakerTraits.default()
           .withExpiration(expiration)
           .withNonce(randBigInt(UINT_40_MAX))
+        console.log(
+          `Using maker traits: ${JSON.stringify(
+            makerTraits,
+            bigintReplacer,
+            2
+          )}`
+        )
 
         // Checking allowance
         const spender =
