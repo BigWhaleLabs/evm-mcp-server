@@ -299,7 +299,7 @@ export default function register1InchTools(server: McpServer) {
   // Limit orders
   server.tool(
     'place_limit_order',
-    'Place a limit order for an ERC20 token swap',
+    'Place a limit order for an ERC20 token swap, it will either be executed for the specified amounts or will be refunded by the expiration time; you need to know the price of both tokens in advance to calculate the correct amounts.',
     {
       fromAddress: z
         .string()
