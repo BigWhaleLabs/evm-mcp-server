@@ -411,7 +411,7 @@ export default function register1InchTools(server: McpServer) {
 
         const sdk = new Sdk({
           authKey: process.env.ONE_INCH_API_KEY as string,
-          networkId: 1,
+          networkId: networkNameMap[network],
           httpConnector: new FetchProviderConnector(),
         })
         console.log('Got the SDK initialized successfully')
