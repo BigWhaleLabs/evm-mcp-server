@@ -168,7 +168,9 @@ setInterval(async () => {
       'Error checking orders:',
       error instanceof AxiosError
         ? `${error.message}, ${error.response?.data}`
-        : error
+        : error instanceof Error
+        ? error.message
+        : String(error)
     )
   } finally {
     checking = false
