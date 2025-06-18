@@ -5,7 +5,7 @@
       "name": "@mcpdotdirect/evm-mcp-server",
       "dependencies": {
         "@1inch/cross-chain-sdk": "^0.1.15-rc.0",
-        "@1inch/limit-order-sdk": "^5.0.0",
+        "@1inch/limit-order-sdk": "^5.0.1",
         "@big-whale-labs/modelcontextprotocol-sdk": "^1.12.0",
         "@ethersproject/providers": "^5.8.0",
         "@privy-io/server-auth": "^1.26.1",
@@ -40,7 +40,7 @@
 
     "@1inch/fusion-sdk": ["@1inch/fusion-sdk@2.1.11-rc.2", "", { "dependencies": { "@1inch/byte-utils": "2.3.0", "@1inch/limit-order-sdk": "^4.9.3-rc.1", "ethers": "^6.13.1", "tslib": "^2.6.3", "ws": "^8.17.1" }, "peerDependencies": { "assert": "^2.0.0", "axios": ">=1 <2" }, "optionalPeers": ["assert", "axios"] }, "sha512-OuCS58rj1TolXQA/bO7TI84h/ncm7YjNlA6Fa1L5Rc5qCtdfA3uCdPn8GITotZ2aR6sz4LopGiVxd227k5ltww=="],
 
-    "@1inch/limit-order-sdk": ["@1inch/limit-order-sdk@5.0.0", "", { "dependencies": { "@1inch/byte-utils": "3.0.0", "ethers": "6.13.5" }, "peerDependencies": { "assert": "^2.0.0", "axios": ">=1 <2" }, "optionalPeers": ["assert", "axios"] }, "sha512-TckTkItISKmW762KuYQvcFmDtR39v6JlE5h4zijEA5+05biQuvYetF61Ax5y3/DnYibUMjpBElwPDjrpoL0VJQ=="],
+    "@1inch/limit-order-sdk": ["@1inch/limit-order-sdk@5.0.1", "", { "dependencies": { "@1inch/byte-utils": "3.0.0", "ethers": "6.13.5" }, "peerDependencies": { "assert": "^2.0.0", "axios": ">=1 <2" }, "optionalPeers": ["assert", "axios"] }, "sha512-a++cY31qGnt2gw/KLXwvHWOLkHIB2EffvBRer9BssfSAhHb9WSvyQfUanYD7o+YWXhhcdS/QDdlq+IoUZ5mpKQ=="],
 
     "@adraffy/ens-normalize": ["@adraffy/ens-normalize@1.10.1", "", {}, "sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw=="],
 
