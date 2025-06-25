@@ -22,5 +22,5 @@ export function registerEVMTools(server: McpServer) {
   registerTokenTools(server)
   registerSwapTools(server)
   register1InchTools(server)
-  registerAlchemyTools(server)
+  // registerAlchemyTools(server)
 }
