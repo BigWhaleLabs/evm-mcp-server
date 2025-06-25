@@ -519,8 +519,21 @@ export default function register1InchTools(server: McpServer) {
         .describe(
           'A comma-separated list of statuses by which limit orders will be filtered. Valid statuses include: 1 - Valid orders, 2 - Temporarily invalid orders, 3 - Invalid orders. Comma-separated values, e.g., "1,2,3", defaults to "1,2,3"'
         ),
+      network: z
+        .number()
+        .optional()
+        .describe(
+          'Network ID to fetch orders from, defaults to 8453 (Base mainnet)'
+        ),
     },
-    async ({ address, page = 1, takerAsset, makerAsset, statuses }) => {
+    async ({
+      address,
+      page = 1,
+      takerAsset,
+      makerAsset,
+      statuses,
+      network = 8453,
+    }) => {
       const axios = require('axios')
       const url = `https://api.1inch.dev/orderbook/v4.0/1/address/${address}`
 
@@ -534,6 +547,7 @@ export default function register1InchTools(server: McpServer) {
           statuses,
           takerAsset,
           makerAsset,
+          network,
         },
         paramsSerializer: {
           indexes: null,
