@@ -48,6 +48,7 @@
     "@uniswap/sdk-core": "^7.7.2",
     "@uniswap/smart-order-router": "^4.21.18",
     "@uniswap/v3-sdk": "^3.25.2",
+    "alchemy-sdk": "^3.6.1",
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "ethers": "5.7.2",
