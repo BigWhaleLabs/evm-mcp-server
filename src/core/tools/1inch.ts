@@ -17,11 +17,11 @@ import {
 import extractPrivyHeaders from '../helpers/extractPrivyHeaders.js'
 import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
-import { getNetworkNameById, networkNameMap } from '../chains.js'
 import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
 import { AxiosError } from 'axios'
 import { redis } from 'bun'
 import universalRouterAbi1inch from '../helpers/universalRouterAbi1inch.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function register1InchTools(server: McpServer) {
   // Get cross chain swap orders by address
@@ -58,11 +58,6 @@ export default function register1InchTools(server: McpServer) {
           ],
         }
       } catch (error) {
-        console.error(
-          `Error initializing 1inch Fusion SDK: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        )
         return {
           content: [
             {
@@ -145,9 +140,6 @@ export default function register1InchTools(server: McpServer) {
             walletAddress: string,
             typedData: EIP712TypedData
           ) {
-            console.log(
-              `Signing typed data for wallet ${walletAddress} on chain ${srcChainId}`
-            )
             return (
               await privyClient.walletApi.ethereum.signTypedData({
                 walletId: privyWalletId,
@@ -156,10 +148,7 @@ export default function register1InchTools(server: McpServer) {
             ).signature
           },
           async ethCall(contractAddress: string, callData: string) {
-            console.log(
-              `Calling contract ${contractAddress} with data ${callData} on chain ${srcChainId}`
-            )
-            const publicClient = services.getPublicClientForChainId(srcChainId)
+            const publicClient = services.getPublicClient(srcChainId)
             const resultingData = (
               await publicClient.call({
                 to: contractAddress as Address,
@@ -192,15 +181,11 @@ export default function register1InchTools(server: McpServer) {
             srcTokenAddress as Address,
             spender,
             amount,
-            getNetworkNameById(srcChainId),
+            srcChainId,
             privyClient,
             privyWalletId
           )
         }
-        console.log(
-          `Initiating cross-chain swap from ${srcChainId} to ${dstChainId} for ${amount} of ${srcTokenAddress} to ${dstTokenAddress} with ${process.env.ONE_INCH_API_KEY} API key`
-        )
-        console.log('Fetching quote for cross-chain swap with params:', params)
         const sdk = new SDK({
           url: 'https://api.1inch.dev/fusion-plus',
           authKey: process.env.ONE_INCH_API_KEY,
@@ -209,9 +194,6 @@ export default function register1InchTools(server: McpServer) {
 
         const quote = await sdk.getQuote(params)
         const secretsCount = quote.getPreset().secretsCount
-        console.log(
-          `Quote received with ${secretsCount} secrets for cross-chain swap`
-        )
 
         const secrets = Array.from({ length: secretsCount }).map(
           () => '0x' + Buffer.from(randomBytes(32)).toString('hex')
@@ -236,9 +218,6 @@ export default function register1InchTools(server: McpServer) {
           hashLock,
           secretHashes,
         })
-        console.log(
-          `Cross-chain swap quote placed successfully! Quote response: ${quoteResponse}`
-        )
 
         const orderHash = quoteResponse.orderHash
 
@@ -252,9 +231,6 @@ export default function register1InchTools(server: McpServer) {
           orderHash,
           message: 'The swap will happen in 2-3 minutes.',
         }
-        console.log(
-          `Cross-chain swap initiated successfully! Order hash: ${orderHash}`
-        )
         return {
           content: [
             {
@@ -265,10 +241,6 @@ export default function register1InchTools(server: McpServer) {
         }
       } catch (error) {
         if (error instanceof AxiosError) {
-          console.log(
-            `Error placing cross-chain swap quote: ${error.message}`,
-            error.response?.data
-          )
           return {
             content: [
               {
@@ -284,11 +256,6 @@ export default function register1InchTools(server: McpServer) {
             isError: true,
           }
         }
-        console.error(
-          `Error placing cross-chain swap quote: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        )
         return {
           content: [{ type: 'text', text: `Error: ${error}` }],
           isError: true,
@@ -308,10 +275,10 @@ export default function register1InchTools(server: McpServer) {
           "The current owner's wallet address that holds the source token (e.g., '0x1234...')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Defaults to Base mainnet."
+          'Network ID for the limit order, defaults to 8453 (Base mainnet)'
         ),
       makerAssetAddress: z
         .string()
@@ -341,7 +308,7 @@ export default function register1InchTools(server: McpServer) {
     async (
       {
         fromAddress,
-        network = 'base',
+        network = DEFAULT_CHAIN_ID,
         makerAssetAddress,
         takerAssetAddress,
         makingAmount,
@@ -366,38 +333,24 @@ export default function register1InchTools(server: McpServer) {
         const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn
 
         const UINT_20_MAX = (1n << 20n) - 1n
-        console.log('Placing limit order')
         const makerTraits = MakerTraits.default()
           .withExpiration(expiration)
           .withNonce(randBigInt(UINT_20_MAX))
           .allowMultipleFills()
           .allowPartialFills()
-        console.log(
-          `Using maker traits: ${JSON.stringify(
-            makerTraits,
-            bigintReplacer,
-            2
-          )}`
-        )
 
         // Checking allowance
         const spender =
-          networkNameMap[network] === 324
+          network === 324
             ? '0x6fd4383cb451173d5f9304f041c7bcbf27d561ff'
             : '0x111111125421ca6dc452d289314280a0f8842a65'
         const allowance = await services.getERC20Allowance(
           makerAssetAddress as Address,
           fromAddress as Address,
           spender,
-          networkNameMap[network]
-        )
-        console.log(
-          `Got allowance for ${makerAssetAddress} from ${fromAddress} to ${spender} on network ${networkNameMap[network]}: ${allowance}`
+          network
         )
         if (BigInt(allowance) < BigInt(makingAmount)) {
-          console.log(
-            `Allowance for ${makerAssetAddress} is not enough, current: ${allowance}, required: ${makingAmount}`
-          )
           // If allowance is not enough, we need to approve the spender
           await services.approveERC20(
             makerAssetAddress as Address,
@@ -408,26 +361,12 @@ export default function register1InchTools(server: McpServer) {
             privyWalletId
           )
         }
-        console.log(
-          `Placing limit order for ${makingAmount} of ${makerAssetAddress} to receive ${takingAmount} of ${takerAssetAddress} from ${fromAddress} on network ${networkNameMap[network]}`
-        )
 
         const sdk = new Sdk({
           authKey: process.env.ONE_INCH_API_KEY as string,
-          networkId: networkNameMap[network],
+          networkId: network,
           httpConnector: new FetchProviderConnector(),
         })
-        console.log('Got the SDK initialized successfully')
-
-        console.log(`Creating limit order with the following details:
-          \nMaker Asset: ${makerAssetAddress}
-          \nTaker Asset: ${takerAssetAddress}
-          \nMaking Amount: ${makingAmount}
-          \nTaking Amount: ${takingAmount}
-          \nMaker Address: ${fromAddress}
-          \nExpiration: ${expiration}
-          \nMaker Traits: ${JSON.stringify(makerTraits, bigintReplacer, 2)}`)
-
         const order = await sdk.createOrder(
           {
             makerAsset: new Address1Inch(makerAssetAddress),
@@ -438,16 +377,7 @@ export default function register1InchTools(server: McpServer) {
           },
           makerTraits
         )
-        console.log(
-          `Limit order created successfully! Order details: ${JSON.stringify(
-            order,
-            bigintReplacer,
-            2
-          )}`
-        )
-
-        const networkId = networkNameMap[network]
-        const typedData = order.getTypedData(networkId)
+        const typedData = order.getTypedData(network)
         const signature = (
           await privyClient.walletApi.ethereum.signTypedData({
             walletId: privyWalletId,
@@ -456,8 +386,6 @@ export default function register1InchTools(server: McpServer) {
         ).signature
 
         await sdk.submitOrder(order, signature)
-        console.log(`Limit order submitted successfully!`)
-
         return {
           content: [
             {
@@ -565,7 +493,6 @@ export default function register1InchTools(server: McpServer) {
           ],
         }
       } catch (error) {
-        console.error(error)
         return {
           content: [
             {

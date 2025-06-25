@@ -10,7 +10,7 @@ import {
 import { getPublicClient } from './clients.js'
 import { resolveAddress } from './ens.js'
 import { PrivyClient } from '@privy-io/server-auth'
-import { networkNameMap } from '../chains.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 import wethAbi from '../wethAbi.js'
 
 /**
@@ -18,7 +18,7 @@ import wethAbi from '../wethAbi.js'
  */
 export async function readContract(
   params: ReadContractParameters,
-  network = 'ethereum'
+  network = DEFAULT_CHAIN_ID
 ) {
   const client = getPublicClient(network)
   return await client.readContract(params)
@@ -29,16 +29,14 @@ export async function readContract(
  */
 export async function writeContract(
   transaction: Record<string, any>,
-  network = 'base',
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<Hash> {
-  const networkId = networkNameMap[network]
-
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction,
     },
@@ -54,7 +52,7 @@ export async function writeContract(
  */
 export async function getLogs(
   params: GetLogsParameters,
-  network = 'ethereum'
+  network = DEFAULT_CHAIN_ID
 ): Promise<Log[]> {
   const client = getPublicClient(network)
   return await client.getLogs(params)
@@ -63,12 +61,12 @@ export async function getLogs(
 /**
  * Check if an address is a contract
  * @param addressOrEns Address or ENS name to check
- * @param network Network name or chain ID
+ * @param network Network chain ID
  * @returns True if the address is a contract, false if it's an EOA
  */
 export async function isContract(
   addressOrEns: string,
-  network = 'ethereum'
+  network = DEFAULT_CHAIN_ID
 ): Promise<boolean> {
   // Resolve ENS name to address if needed
   const address = await resolveAddress(addressOrEns, network)
@@ -80,17 +78,15 @@ export async function isContract(
 
 export async function wrapETH(
   amount: string,
-  network: string,
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string,
   wethAddress: Address
 ) {
-  const networkId = networkNameMap[network]
-
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: wethAddress,
@@ -112,17 +108,15 @@ export async function wrapETH(
 
 export async function unwrapWETH(
   amount: string,
-  network: string,
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string,
   wethAddress: Address
 ) {
-  const networkId = networkNameMap[network]
-
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: wethAddress,

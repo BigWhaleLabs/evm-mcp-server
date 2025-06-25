@@ -1,19 +1,8 @@
 import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
 import { z } from 'zod'
-import {
-  networkNameMap,
-  networkUniswapRouterMap,
-  rpcUrlMap,
-} from '../chains.js'
 import * as services from '../services/index.js'
 import { type Address, type Hash, encodeFunctionData, erc20Abi } from 'viem'
-import {
-  ChainId,
-  CurrencyAmount,
-  Percent,
-  Token,
-  TradeType,
-} from '@uniswap/sdk-core'
+import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   AlphaRouter,
@@ -26,6 +15,7 @@ import { encodeRouteToPath } from '@uniswap/v3-sdk'
 import uniswapRouterAbi from '../uniswapRouterAbi.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
 import extractPrivyHeaders from '../helpers/extractPrivyHeaders.js'
+import { chains, DEFAULT_CHAIN_ID, getRpcUrl } from '../chains.js'
 
 export default function registerSwapTools(server: McpServer) {
   // Swap ERC20 tokens
@@ -56,10 +46,10 @@ export default function registerSwapTools(server: McpServer) {
           "The amount of the input token to swap (in smallest units, e.g., '1000000' for 1 token with 6 decimals)"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
+          'The EVM network chain ID to use for the swap (defaults to Base mainnet)'
         ),
     },
     async (
@@ -70,7 +60,7 @@ export default function registerSwapTools(server: McpServer) {
         tokenOutAddress,
         tokenOutDecimals,
         amountIn,
-        network = 'base',
+        network = DEFAULT_CHAIN_ID,
       },
       extra
     ) => {
@@ -88,8 +78,7 @@ export default function registerSwapTools(server: McpServer) {
         )
 
         const publicClient = services.getPublicClient(network)
-        const chainId = networkNameMap[network] as ChainId
-        const uniswapAddress = networkUniswapRouterMap[chainId] as
+        const uniswapAddress = chains[network]?.uniswapRouter as
           | Address
           | undefined
 
@@ -122,16 +111,16 @@ export default function registerSwapTools(server: McpServer) {
         }
 
         // Get route
-        const tokenIn = new Token(chainId, tokenInAddress, tokenInDecimals)
-        const tokenOut = new Token(chainId, tokenOutAddress, tokenOutDecimals)
+        const tokenIn = new Token(network, tokenInAddress, tokenInDecimals)
+        const tokenOut = new Token(network, tokenOutAddress, tokenOutDecimals)
         console.log(
           `Searching for route from ${tokenIn.symbol || tokenIn.address} to ${
             tokenOut.symbol || tokenOut.address
-          } at ${network}, ${chainId}`
+          } at ${network}`
         )
-        const provider = new JsonRpcProvider(rpcUrlMap[chainId], chainId)
+        const provider = new JsonRpcProvider(getRpcUrl(network))
         const router = new AlphaRouter({
-          chainId,
+          chainId: network,
           provider,
         })
         const route = await router.route(
@@ -187,12 +176,12 @@ export default function registerSwapTools(server: McpServer) {
         const tx = await privyClient.walletApi.rpc({
           walletId: privyWalletId,
           method: 'eth_sendTransaction',
-          caip2: `eip155:${chainId}`,
+          caip2: `eip155:${network}`,
           params: {
             transaction: {
               to: uniswapAddress,
               data,
-              chainId,
+              chainId: network,
             },
           },
         })

@@ -1,20 +1,20 @@
 import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
 import { z } from 'zod'
 import * as services from '../services/index.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerBlockTools(server: McpServer) {
-  // Get block by number
   server.tool(
     'get_block_by_number',
     'Get a block by its block number',
     {
       blockNumber: z.number().describe('The block number to fetch'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ blockNumber, network = 'base' }) => {
+    async ({ blockNumber, network = DEFAULT_CHAIN_ID }) => {
       try {
         const block = await services.getBlockByNumber(blockNumber, network)
 
@@ -42,17 +42,16 @@ export default function registerBlockTools(server: McpServer) {
     }
   )
 
-  // Get latest block
   server.tool(
     'get_latest_block',
     'Get the latest block from the EVM',
     {
       network: z
-        .string()
+        .number()
         .optional()
-        .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ network = 'base' }) => {
+    async ({ network = DEFAULT_CHAIN_ID }) => {
       try {
         const block = await services.getLatestBlock(network)
 

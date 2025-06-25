@@ -3,6 +3,7 @@ import { z } from 'zod'
 import * as services from '../services/index.js'
 import { type Address, type Hash } from 'viem'
 import bigintReplacer from '../helpers/bigintReplacer.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerTransactionTools(server: McpServer) {
   // Get transaction by hash
@@ -14,13 +15,11 @@ export default function registerTransactionTools(server: McpServer) {
         .string()
         .describe("The transaction hash to look up (e.g., '0x1234...')"),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Ethereum mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ txHash, network = 'base' }) => {
+    async ({ txHash, network = DEFAULT_CHAIN_ID }) => {
       try {
         const tx = await services.getTransaction(txHash as Hash, network)
 
@@ -55,11 +54,11 @@ export default function registerTransactionTools(server: McpServer) {
     {
       txHash: z.string().describe('The transaction hash to look up'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ txHash, network = 'base' }) => {
+    async ({ txHash, network = DEFAULT_CHAIN_ID }) => {
       try {
         const receipt = await services.getTransactionReceipt(
           txHash as Hash,
@@ -105,11 +104,11 @@ export default function registerTransactionTools(server: McpServer) {
         .optional()
         .describe('The transaction data as a hex string'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ to, value, data, network = 'base' }) => {
+    async ({ to, value, data, network = DEFAULT_CHAIN_ID }) => {
       try {
         const params: any = { to: to as Address }
 

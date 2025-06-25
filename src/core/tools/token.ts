@@ -3,9 +3,9 @@ import bigintReplacer from '../helpers/bigintReplacer.js'
 import * as services from '../services/index.js'
 import { z } from 'zod'
 import { type Address } from 'viem'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerTokenTools(server: McpServer) {
-  // Get ERC20 token information
   server.tool(
     'get_token_info',
     'Get comprehensive information about an ERC20 token including name, symbol, decimals, total supply, and other metadata. Use this to analyze any token on EVM chains.',
@@ -16,13 +16,13 @@ export default function registerTokenTools(server: McpServer) {
           "The contract address of the ERC20 token (e.g., '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' for USDC on Ethereum)"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, network = 'base' }) => {
+    async ({ tokenAddress, network = DEFAULT_CHAIN_ID }) => {
       try {
         const tokenInfo = await services.getERC20TokenInfo(
           tokenAddress as Address,
@@ -69,11 +69,13 @@ export default function registerTokenTools(server: McpServer) {
       address: z.string().describe('The address to check balance for'),
       tokenAddress: z.string().describe('The ERC20 token contract address'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe('Network name or chain ID. Defaults to Ethereum mainnet.'),
+        .describe(
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
+        ),
     },
-    async ({ address, tokenAddress, network = 'base' }) => {
+    async ({ address, tokenAddress, network = DEFAULT_CHAIN_ID }) => {
       console.log(
         `Fetching ERC20 balance for address: ${address}, token: ${tokenAddress}, network: ${network}`
       )
@@ -135,13 +137,13 @@ export default function registerTokenTools(server: McpServer) {
         .string()
         .describe("The ID of the specific NFT token to query (e.g., '1234')"),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Most NFTs are on Ethereum mainnet, which is the default."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, tokenId, network = 'base' }) => {
+    async ({ tokenAddress, tokenId, network = DEFAULT_CHAIN_ID }) => {
       try {
         const nftInfo = await services.getERC721TokenMetadata(
           tokenAddress as Address,
@@ -222,13 +224,18 @@ export default function registerTokenTools(server: McpServer) {
           "The wallet address or ENS name to check ownership against (e.g., '0x1234...' or 'vitalik.eth')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, tokenId, ownerAddress, network = 'base' }) => {
+    async ({
+      tokenAddress,
+      tokenId,
+      ownerAddress,
+      network = DEFAULT_CHAIN_ID,
+    }) => {
       try {
         const isOwner = await services.isNFTOwner(
           tokenAddress,
@@ -290,13 +297,13 @@ export default function registerTokenTools(server: McpServer) {
           "The ID of the specific token to query metadata for (e.g., '1234')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. ERC1155 tokens exist across many networks. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, tokenId, network = 'base' }) => {
+    async ({ tokenAddress, tokenId, network = DEFAULT_CHAIN_ID }) => {
       try {
         const uri = await services.getERC1155TokenURI(
           tokenAddress as Address,
@@ -353,13 +360,13 @@ export default function registerTokenTools(server: McpServer) {
           "The wallet address to check the NFT balance for (e.g., '0x1234...')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Most NFTs are on Ethereum mainnet, which is the default."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, ownerAddress, network = 'base' }) => {
+    async ({ tokenAddress, ownerAddress, network = DEFAULT_CHAIN_ID }) => {
       try {
         const balance = await services.getERC721Balance(
           tokenAddress as Address,
@@ -421,13 +428,18 @@ export default function registerTokenTools(server: McpServer) {
           "The wallet address to check the token balance for (e.g., '0x1234...')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. ERC1155 tokens exist across many networks. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to use for the token (defaults to Base mainnet).'
         ),
     },
-    async ({ tokenAddress, tokenId, ownerAddress, network = 'base' }) => {
+    async ({
+      tokenAddress,
+      tokenId,
+      ownerAddress,
+      network = DEFAULT_CHAIN_ID,
+    }) => {
       try {
         const balance = await services.getERC1155Balance(
           tokenAddress as Address,

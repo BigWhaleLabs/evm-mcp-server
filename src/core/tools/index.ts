@@ -11,14 +11,6 @@ import registerTokenTools from './token.js'
 import registerSwapTools from './swap.js'
 import registerAlchemyTools from './alchemy.js'
 
-/**
- * Register all EVM-related tools with the MCP server
- *
- * All tools that accept Ethereum addresses also support ENS names (e.g., 'vitalik.eth').
- * ENS names are automatically resolved to addresses using the Ethereum Name Service.
- *
- * @param server The MCP server instance
- */
 export function registerEVMTools(server: McpServer) {
   registerNetworkInformationTools(server)
   registerBlockTools(server)

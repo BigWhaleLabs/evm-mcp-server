@@ -2,25 +2,23 @@ import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.j
 import { z } from 'zod'
 import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
-import { getSupportedNetworks } from '../chains.js'
 import { normalize } from 'viem/ens'
+import { chains, DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerNetworkInformationTools(server: McpServer) {
-  // Get chain information
   server.tool(
     'get_chain_info',
     'Get information about an EVM network',
     {
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to get information about (defaults to Base mainnet)'
         ),
     },
-    async ({ network = 'base' }) => {
+    async ({ network = DEFAULT_CHAIN_ID }) => {
       try {
-        const chainId = await services.getChainId(network)
         const blockNumber = await services.getBlockNumber(network)
 
         return {
@@ -30,7 +28,7 @@ export default function registerNetworkInformationTools(server: McpServer) {
               text: JSON.stringify(
                 {
                   network,
-                  chainId,
+                  chainId: network,
                   blockNumber: blockNumber.toString(),
                 },
                 bigintReplacer,
@@ -55,22 +53,19 @@ export default function registerNetworkInformationTools(server: McpServer) {
     }
   )
 
-  // ENS LOOKUP TOOL
-
-  // Resolve ENS name to address
   server.tool(
     'resolve_ens',
     'Resolve an ENS name to an Ethereum address',
     {
       ensName: z.string().describe("ENS name to resolve (e.g., 'vitalik.eth')"),
       network: z
-        .string()
+        .number()
         .optional()
         .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. ENS resolution works best on Ethereum mainnet. Defaults to Ethereum mainnet."
+          'The EVM network chain ID to resolve the ENS name on (defaults to Ethereum mainnet)'
         ),
     },
-    async ({ ensName, network = 'ethereum' }) => {
+    async ({ ensName, network = 1 }) => {
       try {
         // Validate that the input is an ENS name
         if (!ensName.includes('.')) {
@@ -124,22 +119,19 @@ export default function registerNetworkInformationTools(server: McpServer) {
     }
   )
 
-  // Get supported networks
   server.tool(
     'get_supported_networks',
     'Get a list of supported EVM networks',
     {},
     async () => {
       try {
-        const networks = getSupportedNetworks()
-
         return {
           content: [
             {
               type: 'text',
               text: JSON.stringify(
                 {
-                  supportedNetworks: networks,
+                  supportedNetworks: chains,
                 },
                 bigintReplacer,
                 2

@@ -4,6 +4,7 @@ import extractPrivyHeaders from '../helpers/extractPrivyHeaders.js'
 import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
 import { type Address } from 'viem'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerWrapTools(server: McpServer) {
   // Wrap ETH
@@ -17,14 +18,12 @@ export default function registerWrapTools(server: McpServer) {
           "Amount of ETH to wrap, as a bigint string (e.g., '1000000000000000000' for 1 ETH)"
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Defaults to Base mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
       wethAddress: z.string().describe('WETH contract address'),
     },
-    async ({ amount, network = 'base', wethAddress }, extra) => {
+    async ({ amount, network = DEFAULT_CHAIN_ID, wethAddress }, extra) => {
       try {
         const {
           privyAppId,
@@ -89,14 +88,12 @@ export default function registerWrapTools(server: McpServer) {
           "Amount of WETH to unwrap, as a bigint string (e.g., '1000000000000000000' for 1 WETH)"
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Defaults to Base mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
       wethAddress: z.string().describe('WETH contract address'),
     },
-    async ({ amount, network = 'base', wethAddress }, extra) => {
+    async ({ amount, network = DEFAULT_CHAIN_ID, wethAddress }, extra) => {
       try {
         const {
           privyAppId,

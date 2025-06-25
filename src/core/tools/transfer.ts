@@ -4,6 +4,7 @@ import * as services from '../services/index.js'
 import { type Address } from 'viem'
 import bigintReplacer from '../helpers/bigintReplacer.js'
 import extractPrivyHeaders from '../helpers/extractPrivyHeaders.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerTransferTools(server: McpServer) {
   // Transfer ETH
@@ -22,13 +23,11 @@ export default function registerTransferTools(server: McpServer) {
           "Amount to send in ETH (or the native token of the network), as a string (e.g., '0.1')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ to, amount, network = 'base' }, extra) => {
+    async ({ to, amount, network = DEFAULT_CHAIN_ID }, extra) => {
       const {
         privyAppId,
         privyAppSecret,
@@ -98,13 +97,14 @@ export default function registerTransferTools(server: McpServer) {
           "The amount of tokens to send (in token units, e.g., '10' for 10 tokens)"
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Base mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ tokenAddress, toAddress, amount, network = 'base' }, extra) => {
+    async (
+      { tokenAddress, toAddress, amount, network = DEFAULT_CHAIN_ID },
+      extra
+    ) => {
       const {
         privyAppId,
         privyAppSecret,
@@ -184,14 +184,12 @@ export default function registerTransferTools(server: McpServer) {
           "The amount of tokens to approve in token units, not wei (e.g., '1000' to approve spending 1000 tokens). Use a very large number for unlimited approval."
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Defaults to Base mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
     async (
-      { tokenAddress, spenderAddress, amount, network = 'base' },
+      { tokenAddress, spenderAddress, amount, network = DEFAULT_CHAIN_ID },
       extra
     ) => {
       const {
@@ -274,14 +272,18 @@ export default function registerTransferTools(server: McpServer) {
         .string()
         .describe('The recipient wallet address that will receive the NFT'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. Most NFTs are on Ethereum mainnet, which is the default."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
     async (
-      { fromAddress, tokenAddress, tokenId, toAddress, network = 'base' },
+      {
+        fromAddress,
+        tokenAddress,
+        tokenId,
+        toAddress,
+        network = DEFAULT_CHAIN_ID,
+      },
       extra
     ) => {
       const {
@@ -371,11 +373,9 @@ export default function registerTransferTools(server: McpServer) {
         .string()
         .describe('The recipient wallet address that will receive the tokens'),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', 'polygon') or chain ID. ERC1155 tokens exist across many networks. Defaults to Ethereum mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
     async (
       {
@@ -384,7 +384,7 @@ export default function registerTransferTools(server: McpServer) {
         tokenId,
         amount,
         toAddress,
-        network = 'base',
+        network = DEFAULT_CHAIN_ID,
       },
       extra
     ) => {
@@ -469,13 +469,14 @@ export default function registerTransferTools(server: McpServer) {
           "Amount of tokens to send as a string (e.g., '100' for 100 tokens). This will be adjusted for the token's decimals."
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base mainnet.'),
     },
-    async ({ tokenAddress, toAddress, amount, network = 'base' }, extra) => {
+    async (
+      { tokenAddress, toAddress, amount, network = DEFAULT_CHAIN_ID },
+      extra
+    ) => {
       try {
         const {
           privyAppId,

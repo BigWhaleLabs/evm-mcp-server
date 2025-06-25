@@ -8,10 +8,10 @@ import {
   encodeFunctionData,
   erc20Abi,
 } from 'viem'
-import { getPublicClient, getPublicClientForChainId } from './clients.js'
+import { getPublicClient } from './clients.js'
 import { resolveAddress } from './ens.js'
 import { PrivyClient } from '@privy-io/server-auth'
-import { networkNameMap } from '../chains.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export function getPrivyClient(
   appId: string,
@@ -138,25 +138,23 @@ const erc1155TransferAbi = [
 export async function transferETH(
   toAddressOrEns: string,
   amount: string, // in ether
-  network = 'base',
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<Hash> {
   // Resolve ENS name to address if needed
   const toAddress = await resolveAddress(toAddressOrEns, network)
 
-  const networkId = networkNameMap[network]
-
   const amountWei = parseEther(amount)
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: toAddress,
         value: `0x${amountWei.toString(16)}`,
-        chainId: networkId,
+        chainId: network,
       },
     },
   })
@@ -180,7 +178,7 @@ export async function transferERC20(
   tokenAddressOrEns: string,
   toAddressOrEns: string,
   amount: string,
-  network: string = 'base',
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<{
@@ -216,8 +214,6 @@ export async function transferERC20(
   // Parse the amount with the correct number of decimals
   const rawAmount = parseUnits(amount, decimals)
 
-  const networkId = networkNameMap[network]
-
   // Encode the transfer function call
   const transferData = encodeFunctionData({
     abi: erc20TransferAbi,
@@ -229,12 +225,12 @@ export async function transferERC20(
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: tokenAddress,
         data: transferData,
-        chainId: networkId,
+        chainId: network,
       },
     },
   })
@@ -261,9 +257,9 @@ export async function getERC20Allowance(
   tokenAddress: Address,
   ownerAddress: Address,
   spenderAddress: Address,
-  networkId: number
+  networkId = DEFAULT_CHAIN_ID
 ): Promise<bigint> {
-  const publicClient = getPublicClientForChainId(networkId)
+  const publicClient = getPublicClient(networkId)
   const contract = getContract({
     address: tokenAddress,
     abi: erc20Abi,
@@ -295,7 +291,7 @@ export async function approveERC20(
   tokenAddressOrEns: string,
   spenderAddressOrEns: string,
   amount: string,
-  network: string = 'base',
+  network: number = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<{
@@ -334,8 +330,6 @@ export async function approveERC20(
   // Parse the amount with the correct number of decimals
   const rawAmount = parseUnits(amount, decimals)
 
-  const networkId = networkNameMap[network]
-
   // Encode the approve function call
   const approveData = encodeFunctionData({
     abi: erc20TransferAbi,
@@ -347,12 +341,12 @@ export async function approveERC20(
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: tokenAddress,
         data: approveData,
-        chainId: networkId,
+        chainId: network,
       },
     },
   })
@@ -390,7 +384,7 @@ export async function transferERC721(
   tokenAddressOrEns: string,
   toAddressOrEns: string,
   tokenId: bigint,
-  network: string = 'base',
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<{
@@ -408,8 +402,6 @@ export async function transferERC721(
   )) as Address
   const toAddress = (await resolveAddress(toAddressOrEns, network)) as Address
 
-  const networkId = networkNameMap[network]
-
   // Encode the transferFrom function call
   const transferData = encodeFunctionData({
     abi: erc721TransferAbi,
@@ -421,12 +413,12 @@ export async function transferERC721(
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: tokenAddress,
         data: transferData,
-        chainId: networkId,
+        chainId: network,
       },
     },
   })
@@ -484,7 +476,7 @@ export async function transferERC1155(
   toAddressOrEns: string,
   tokenId: bigint,
   amount: string,
-  network: string = 'base',
+  network = DEFAULT_CHAIN_ID,
   privyClient: PrivyClient,
   privyWalletId: string
 ): Promise<{
@@ -498,8 +490,6 @@ export async function transferERC1155(
     network
   )) as Address
   const toAddress = (await resolveAddress(toAddressOrEns, network)) as Address
-
-  const networkId = networkNameMap[network]
 
   // Parse amount to bigint
   const amountBigInt = BigInt(amount)
@@ -515,12 +505,12 @@ export async function transferERC1155(
   const tx = await privyClient.walletApi.rpc({
     walletId: privyWalletId,
     method: 'eth_sendTransaction',
-    caip2: `eip155:${networkId}`,
+    caip2: `eip155:${network}`,
     params: {
       transaction: {
         to: tokenAddress,
         data: transferData,
-        chainId: networkId,
+        chainId: network,
       },
     },
   })

@@ -2,9 +2,9 @@ import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.j
 import { z } from 'zod'
 import * as services from '../services/index.js'
 import bigintReplacer from '../helpers/bigintReplacer.js'
+import { DEFAULT_CHAIN_ID } from '../chains.js'
 
 export default function registerContractTools(server: McpServer) {
-  // Check if address is a contract
   server.tool(
     'is_contract',
     'Check if an address is a smart contract or an externally owned account (EOA)',
@@ -15,13 +15,11 @@ export default function registerContractTools(server: McpServer) {
           "The wallet or contract address or ENS name to check (e.g., '0x1234...' or 'uniswap.eth')"
         ),
       network: z
-        .string()
+        .number()
         .optional()
-        .describe(
-          "Network name (e.g., 'ethereum', 'optimism', 'arbitrum', 'base', etc.) or chain ID. Supports all EVM-compatible networks. Defaults to Ethereum mainnet."
-        ),
+        .describe('Network chain ID. Defaults to Base.'),
     },
-    async ({ address, network = 'base' }) => {
+    async ({ address, network = DEFAULT_CHAIN_ID }) => {
       try {
         const isContract = await services.isContract(address, network)
 

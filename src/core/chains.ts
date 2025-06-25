@@ -1,3 +1,4 @@
+import { Network } from 'alchemy-sdk'
 import { type Chain } from 'viem'
 import {
   mainnet,
@@ -39,269 +40,220 @@ import {
   soneium,
 } from 'viem/chains'
 
-// Default configuration values
-export const DEFAULT_RPC_URL =
-  'https://base-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY
 export const DEFAULT_CHAIN_ID = 8453
 
-// Map chain IDs to chains
-export const chainMap: Record<number, Chain> = {
-  1: mainnet,
-  103: worldchain,
-  360: shape,
-  324: zksync,
-  10: optimism,
-  137: polygon,
-  42161: arbitrum,
-  42170: arbitrumNova,
-  592: astar,
-  1101: polygonZkEvm,
-  7000: zetachain,
-  250: fantom,
-  5000: mantle,
-  80094: berachain,
-  81457: blast,
-  59144: linea,
-  7777777: zora,
-  2020: ronin,
-  30: rootstock,
-  1514: story,
-  8453: base,
-  232: lens,
-  42793: ink,
-  43114: avalanche,
-  100: gnosis,
-  56: bsc,
-  130: unichain,
-  5330: superseed,
-  33139: apeChain,
-  42220: celo,
-  1088: metis,
-  146: sonic,
-  1329: sei,
-  534352: scroll,
-  204: opBNB,
-  2741: abstract,
-  1868: soneium,
-}
-
-// Map network names to chain IDs for easier reference
-export const networkNameMap: Record<string, number> = {
-  ethereum: 1,
-  mainnet: 1,
-  eth: 1,
-  worldchain: 103,
-  shape: 360,
-  zksync: 324,
-  optimism: 10,
-  op: 10,
-  polygon: 137,
-  matic: 137,
-  arbitrum: 42161,
-  arb: 42161,
-  'arbitrum-nova': 42170,
-  arbitrumnova: 42170,
-  astar: 592,
-  'polygon-zkevm': 1101,
-  polygonzkevm: 1101,
-  zetachain: 7000,
-  fantom: 250,
-  ftm: 250,
-  mantle: 5000,
-  berachain: 80094,
-  blast: 81457,
-  linea: 59144,
-  zora: 7777777,
-  ronin: 2020,
-  rootstock: 30,
-  story: 1514,
-  base: 8453,
-  lens: 232,
-  ink: 42793,
-  avalanche: 43114,
-  avax: 43114,
-  gnosis: 100,
-  xdai: 100,
-  binance: 56,
-  bsc: 56,
-  unichain: 130,
-  superseed: 5330,
-  apechain: 33139,
-  celo: 42220,
-  metis: 1088,
-  sonic: 146,
-  sei: 1329,
-  scroll: 534352,
-  opbnb: 204,
-  abstract: 2741,
-  soneium: 1868,
-}
-
-export function getNetworkNameById(chainId: number): string {
-  // Find the network name by chain ID
-  const networkName = Object.keys(networkNameMap).find(
-    (name) => networkNameMap[name] === chainId
-  )
-  return networkName || 'Unknown Network'
-}
-
-export const networkUniswapRouterMap: Record<number, string> = {
-  1: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
-  8453: '0x2626664c2603336E57B271c5C0b26F421741e481',
-  130: '0x73855d06de49d0fe4a9c42636ba96c62da12ff9c',
-  42161: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
-  10: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
-  137: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
-  56: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
-  42220: '0x5615CDAb10dc425a742d643d949a7F474C01abc4',
-  81457: '0x549FEB8c9bd4c12Ad2AB27022dA12492aC452B66',
-  324: '0x99c56385daBCE3E81d8499d0b8d0257aBC07E8A3',
-  7777777: '0x7De04c96BE5159c3b5CeffC82aa176dc81281557',
-  103: '0x091AD9e2e6e5eD44c1c66dB50e49A601F9f36cF6',
-}
-
-// Map chain IDs to RPC URLs
-export const rpcUrlMap: Record<number, string> = {
-  1: 'https://eth-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  103:
-    'https://worldchain-mainnet.g.alchemy.com/v2/' +
-    process.env.ALCHEMY_API_KEY,
-  360: 'https://shape-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  324: 'https://zksync-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  10: 'https://opt-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  137:
-    'https://polygon-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  42161: 'https://arb-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  42170:
-    'https://arbnova-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  592: 'https://astar-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  1101:
-    'https://polygonzkevm-mainnet.g.alchemy.com/v2/' +
-    process.env.ALCHEMY_API_KEY,
-  7000:
-    'https://zetachain-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  250: 'https://fantom-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  5000:
-    'https://mantle-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  80094:
-    'https://berachain-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  81457:
-    'https://blast-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  59144:
-    'https://linea-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  7777777:
-    'https://zora-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  2020: 'https://ronin-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  30:
-    'https://rootstock-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  1514: 'https://story-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  8453: 'https://base-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  232: 'https://lens-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  42793: 'https://ink-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  43114: 'https://avax-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  100: 'https://gnosis-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  56: 'https://bnb-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  130:
-    'https://unichain-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  5330:
-    'https://superseed-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  33139:
-    'https://apechain-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  42220: 'https://celo-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  1088: 'https://metis-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  146: 'https://sonic-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  1329: 'https://sei-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  534352:
-    'https://scroll-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  204: 'https://opbnb-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  2741:
-    'https://abstract-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-  1868:
-    'https://soneium-mainnet.g.alchemy.com/v2/' + process.env.ALCHEMY_API_KEY,
-}
-
-/**
- * Resolves a chain identifier (number or string) to a chain ID
- * @param chainIdentifier Chain ID (number) or network name (string)
- * @returns The resolved chain ID
- */
-export function resolveChainId(chainIdentifier: number | string): number {
-  if (typeof chainIdentifier === 'number') {
-    return chainIdentifier
+export const chains = {
+  1: {
+    chainObject: mainnet,
+    names: ['ethereum', 'mainnet', 'eth'],
+    uniswapRouter: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    alchemyName: 'eth-mainnet',
+  },
+  10: {
+    chainObject: optimism,
+    names: ['optimism', 'op'],
+    uniswapRouter: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    alchemyName: 'opt-mainnet',
+  },
+  30: {
+    chainObject: rootstock,
+    names: ['rootstock'],
+    alchemyName: 'rootstock-mainnet',
+  },
+  56: {
+    chainObject: bsc,
+    names: ['binance', 'bsc'],
+    uniswapRouter: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
+    alchemyName: 'bnb-mainnet',
+  },
+  100: {
+    chainObject: gnosis,
+    names: ['gnosis', 'xdai'],
+    alchemyName: 'gnosis-mainnet',
+  },
+  103: {
+    chainObject: worldchain,
+    names: ['worldchain'],
+    uniswapRouter: '0x091AD9e2e6e5eD44c1c66dB50e49A601F9f36cF6',
+    alchemyName: 'worldchain-mainnet',
+  },
+  130: {
+    chainObject: unichain,
+    names: ['unichain'],
+    uniswapRouter: '0x73855d06de49d0fe4a9c42636ba96c62da12ff9c',
+    alchemyName: 'unichain-mainnet',
+  },
+  137: {
+    chainObject: polygon,
+    names: ['polygon', 'matic'],
+    uniswapRouter: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    alchemyName: 'polygon-mainnet',
+  },
+  146: {
+    chainObject: sonic,
+    names: ['sonic'],
+    alchemyName: 'sonic-mainnet',
+  },
+  204: {
+    chainObject: opBNB,
+    names: ['opbnb'],
+    alchemyName: 'opbnb-mainnet',
+  },
+  232: {
+    chainObject: lens,
+    names: ['lens'],
+    alchemyName: 'lens-mainnet',
+  },
+  250: {
+    chainObject: fantom,
+    names: ['fantom', 'ftm'],
+    alchemyName: 'fantom-mainnet',
+  },
+  324: {
+    chainObject: zksync,
+    names: ['zksync'],
+    uniswapRouter: '0x99c56385daBCE3E81d8499d0b8d0257aBC07E8A3',
+    alchemyName: 'zksync-mainnet',
+  },
+  360: {
+    chainObject: shape,
+    names: ['shape'],
+    alchemyName: 'shape-mainnet',
+  },
+  592: {
+    chainObject: astar,
+    names: ['astar'],
+    alchemyName: 'astar-mainnet',
+  },
+  1088: {
+    chainObject: metis,
+    names: ['metis'],
+    alchemyName: 'metis-mainnet',
+  },
+  1101: {
+    chainObject: polygonZkEvm,
+    names: ['polygon-zkevm', 'polygonzkevm'],
+    alchemyName: 'polygonzkevm-mainnet',
+  },
+  1329: {
+    chainObject: sei,
+    names: ['sei'],
+    alchemyName: 'sei-mainnet',
+  },
+  1514: {
+    chainObject: story,
+    names: ['story'],
+    alchemyName: 'story-mainnet',
+  },
+  1868: {
+    chainObject: soneium,
+    names: ['soneium'],
+    alchemyName: 'soneium-mainnet',
+  },
+  2020: {
+    chainObject: ronin,
+    names: ['ronin'],
+    alchemyName: 'ronin-mainnet',
+  },
+  2741: {
+    chainObject: abstract,
+    names: ['abstract'],
+    alchemyName: 'abstract-mainnet',
+  },
+  5000: {
+    chainObject: mantle,
+    names: ['mantle'],
+    alchemyName: 'mantle-mainnet',
+  },
+  5330: {
+    chainObject: superseed,
+    names: ['superseed'],
+    alchemyName: 'superseed-mainnet',
+  },
+  7000: {
+    chainObject: zetachain,
+    names: ['zetachain'],
+    alchemyName: 'zetachain-mainnet',
+  },
+  8453: {
+    chainObject: base,
+    names: ['base'],
+    uniswapRouter: '0x2626664c2603336E57B271c5C0b26F421741e481',
+    alchemyName: 'base-mainnet',
+  },
+  33139: {
+    chainObject: apeChain,
+    names: ['apechain'],
+    alchemyName: 'apechain-mainnet',
+  },
+  42161: {
+    chainObject: arbitrum,
+    names: ['arbitrum', 'arb'],
+    uniswapRouter: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    alchemyName: 'arb-mainnet',
+  },
+  42170: {
+    chainObject: arbitrumNova,
+    names: ['arbitrum-nova', 'arbitrumnova'],
+    alchemyName: 'arbnova-mainnet',
+  },
+  42220: {
+    chainObject: celo,
+    names: ['celo'],
+    uniswapRouter: '0x5615CDAb10dc425a742d643d949a7F474C01abc4',
+    alchemyName: 'celo-mainnet',
+  },
+  42793: {
+    chainObject: ink,
+    names: ['ink'],
+    alchemyName: 'ink-mainnet',
+  },
+  43114: {
+    chainObject: avalanche,
+    names: ['avalanche', 'avax'],
+    alchemyName: 'avax-mainnet',
+  },
+  59144: {
+    chainObject: linea,
+    names: ['linea'],
+    alchemyName: 'linea-mainnet',
+  },
+  80094: {
+    chainObject: berachain,
+    names: ['berachain'],
+    alchemyName: 'berachain-mainnet',
+  },
+  81457: {
+    chainObject: blast,
+    names: ['blast'],
+    uniswapRouter: '0x549FEB8c9bd4c12Ad2AB27022dA12492aC452B66',
+    alchemyName: 'blast-mainnet',
+  },
+  534352: {
+    chainObject: scroll,
+    names: ['scroll'],
+    alchemyName: 'scroll-mainnet',
+  },
+  7777777: {
+    chainObject: zora,
+    names: ['zora'],
+    uniswapRouter: '0x7De04c96BE5159c3b5CeffC82aa176dc81281557',
+    alchemyName: 'zora-mainnet',
+  },
+} as Record<
+  number,
+  {
+    chainObject: Chain
+    names: string[]
+    uniswapRouter?: string
+    alchemyName: Network
   }
+>
 
-  // Convert to lowercase for case-insensitive matching
-  const networkName = chainIdentifier.toLowerCase()
-
-  // Check if the network name is in our map
-  if (networkName in networkNameMap) {
-    return networkNameMap[networkName]
+export function getRpcUrl(chainIdentifier: number = DEFAULT_CHAIN_ID) {
+  const alchemyName = chains[chainIdentifier]?.alchemyName
+  if (!alchemyName) {
+    throw new Error(`No RPC found for chain ID ${chainIdentifier}`)
   }
-
-  // Try parsing as a number
-  const parsedId = parseInt(networkName)
-  if (!isNaN(parsedId)) {
-    return parsedId
-  }
-
-  // Default to mainnet if not found
-  return DEFAULT_CHAIN_ID
-}
-
-/**
- * Returns the chain configuration for the specified chain ID or network name
- * @param chainIdentifier Chain ID (number) or network name (string)
- * @returns The chain configuration
- * @throws Error if the network is not supported (when string is provided)
- */
-export function getChain(
-  chainIdentifier: number | string = DEFAULT_CHAIN_ID
-): Chain {
-  if (typeof chainIdentifier === 'string') {
-    const networkName = chainIdentifier.toLowerCase()
-    // Try to get from direct network name mapping first
-    if (networkNameMap[networkName]) {
-      return chainMap[networkNameMap[networkName]] || mainnet
-    }
-
-    // If not found, throw an error
-    throw new Error(`Unsupported network: ${chainIdentifier}`)
-  }
-
-  // If it's a number, return the chain from chainMap
-  return chainMap[chainIdentifier] || mainnet
-}
-
-/**
- * Gets the appropriate RPC URL for the specified chain ID or network name
- * @param chainIdentifier Chain ID (number) or network name (string)
- * @returns The RPC URL for the specified chain
- */
-export function getRpcUrl(
-  chainIdentifier: number | string = DEFAULT_CHAIN_ID
-): string {
-  const chainId =
-    typeof chainIdentifier === 'string'
-      ? resolveChainId(chainIdentifier)
-      : chainIdentifier
-
-  return rpcUrlMap[chainId] || DEFAULT_RPC_URL
-}
-
-/**
- * Get a list of supported networks
- * @returns Array of supported network names (excluding short aliases)
- */
-export function getSupportedNetworks(): string[] {
-  return Object.keys(networkNameMap)
-    .filter((name) => name.length > 2) // Filter out short aliases
-    .sort()
-}
-
-export function getChainNameById(chainId: number) {
-  const chain = chainMap[chainId]
-  if (chain) {
-    return chain.name
-  }
-  return 'Unknown Chain'
+  return `https://${alchemyName}.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
 }
