@@ -535,7 +535,7 @@ export default function register1InchTools(server: McpServer) {
       network = 8453,
     }) => {
       const axios = require('axios')
-      const url = `https://api.1inch.dev/orderbook/v4.0/1/address/${address}`
+      const url = `https://api.1inch.dev/orderbook/v4.0/${network}/address/${address}`
 
       const config = {
         headers: {
@@ -547,7 +547,6 @@ export default function register1InchTools(server: McpServer) {
           statuses,
           takerAsset,
           makerAsset,
-          network,
         },
         paramsSerializer: {
           indexes: null,
