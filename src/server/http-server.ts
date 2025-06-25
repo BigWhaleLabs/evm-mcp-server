@@ -9,8 +9,22 @@ import { OrderStatus, SDK } from '@1inch/cross-chain-sdk'
 import { AxiosError } from 'axios'
 
 const app = express()
-app.use(morgan('combined'))
 app.use(express.json())
+
+// Add morgan logging with custom format including session ID
+morgan.token(
+  'session-id',
+  (req) => (req.headers['mcp-session-id'] as string) || 'none'
+)
+morgan.token('body', (req) =>
+  req.method === 'POST' && 'body' in req ? JSON.stringify(req.body) : ''
+)
+
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms - session: :session-id :body'
+  )
+)
 
 // Map to store transports by session ID
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {}
@@ -78,9 +92,6 @@ const handleSessionRequest = async (
 
 // Handle GET requests for server-to-client notifications via SSE
 app.get('/mcp', handleSessionRequest)
-
-// Handle DELETE requests for session termination
-app.delete('/mcp', handleSessionRequest)
 
 app.listen(3000, () => {
   console.log('HTTP server is running on port 3000')
