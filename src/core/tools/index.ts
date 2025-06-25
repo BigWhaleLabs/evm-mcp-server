@@ -9,6 +9,7 @@ import registerWrapTools from './wrap.js'
 import registerContractTools from './contract.js'
 import registerTokenTools from './token.js'
 import registerSwapTools from './swap.js'
+import registerAlchemyTools from './alchemy.js'
 
 /**
  * Register all EVM-related tools with the MCP server
@@ -29,4 +30,5 @@ export function registerEVMTools(server: McpServer) {
   registerTokenTools(server)
   registerSwapTools(server)
   register1InchTools(server)
+  registerAlchemyTools(server)
 }
