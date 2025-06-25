@@ -369,6 +369,8 @@ export default function register1InchTools(server: McpServer) {
         const makerTraits = MakerTraits.default()
           .withExpiration(expiration)
           .withNonce(randBigInt(UINT_20_MAX))
+          .allowMultipleFills()
+          .allowPartialFills()
         console.log(
           `Using maker traits: ${JSON.stringify(
             makerTraits,

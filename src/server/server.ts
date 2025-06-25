@@ -1,7 +1,5 @@
 import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
 import { registerEVMResources } from '../core/resources.js'
-import { registerEVMTools } from '../core/tools/index.js'
-import { registerEVMPrompts } from '../core/prompts.js'
 import { getSupportedNetworks } from '../core/chains.js'
 
 // Create and start the MCP server
@@ -15,8 +13,6 @@ async function startServer() {
 
     // Register all resources, tools, and prompts
     registerEVMResources(server)
-    registerEVMTools(server)
-    registerEVMPrompts(server)
 
     // Log server information
     console.error(`EVM MCP Server initialized`)
