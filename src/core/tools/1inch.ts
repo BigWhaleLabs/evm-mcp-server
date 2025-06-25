@@ -1,5 +1,5 @@
 import { McpServer } from '@big-whale-labs/modelcontextprotocol-sdk/server/mcp.js'
-import { Address } from 'viem'
+import { Address, encodeFunctionData } from 'viem'
 import { z } from 'zod'
 import {
   BlockchainProviderConnector,
@@ -21,6 +21,7 @@ import { getNetworkNameById, networkNameMap } from '../chains.js'
 import FetchProviderConnector from '../helpers/FetchProviderConnector.js'
 import { AxiosError } from 'axios'
 import { redis } from 'bun'
+import universalRouterAbi1inch from '../helpers/universalRouterAbi1inch.js'
 
 export default function register1InchTools(server: McpServer) {
   // Get cross chain swap orders by address
@@ -570,6 +571,95 @@ export default function register1InchTools(server: McpServer) {
             {
               type: 'text',
               text: `Error fetching limit orders: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  server.tool(
+    'cancel_limit_order',
+    'Cancel a limit order by its hash and maker traits',
+    {
+      orderHash: z
+        .string()
+        .describe('The hash of the limit order to cancel (e.g., "0x1234...")'),
+      network: z
+        .number()
+        .optional()
+        .describe(
+          'Network ID of the limit order, defaults to 8453 (Base mainnet)'
+        ),
+      makerTraits: z
+        .string()
+        .describe(
+          'Maker traits of the limit order, extracted from the order info'
+        ),
+    },
+    async ({ orderHash, network = 8453, makerTraits }, extra) => {
+      const {
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey,
+        privyWalletId,
+      } = extractPrivyHeaders(extra)
+      const privyClient = services.getPrivyClient(
+        privyAppId,
+        privyAppSecret,
+        privyAuthorizationPrivateKey
+      )
+      try {
+        const data = encodeFunctionData({
+          abi: universalRouterAbi1inch,
+          functionName: 'cancelOrder',
+          args: [makerTraits, orderHash],
+        })
+        const routerAddress =
+          network === 324
+            ? '0x6fd4383cb451173d5f9304f041c7bcbf27d561ff'
+            : '0x111111125421ca6dc452d289314280a0f8842a65'
+        const tx = await privyClient.walletApi.rpc({
+          walletId: privyWalletId,
+          method: 'eth_sendTransaction',
+          caip2: `eip155:${network}`,
+          params: {
+            transaction: {
+              to: routerAddress,
+              data,
+              chainId: network,
+            },
+          },
+        })
+
+        if ('error' in tx) {
+          throw new Error(`Transaction failed: ${tx.error.message}`)
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: true,
+                  txHash: tx.data.hash,
+                },
+                bigintReplacer,
+                2
+              ),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error transferring ERC20 tokens: ${
                 error instanceof Error ? error.message : String(error)
               }`,
             },
