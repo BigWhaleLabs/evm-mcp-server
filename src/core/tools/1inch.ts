@@ -487,4 +487,83 @@ export default function register1InchTools(server: McpServer) {
       }
     }
   )
+
+  server.tool(
+    'get_limit_orders_by_address',
+    'Get all limit orders submitted by address',
+    {
+      address: z
+        .string()
+        .describe(
+          "The user's wallet address to fetch orders for (e.g., '0x1234...')"
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for pagination, defaults to 1 if not provided'),
+      takerAsset: z
+        .string()
+        .optional()
+        .describe(
+          'Filter orders by taker asset address (e.g., "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")'
+        ),
+      makerAsset: z
+        .string()
+        .optional()
+        .describe(
+          'Filter orders by maker asset address (e.g., "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")'
+        ),
+      statuses: z
+        .string()
+        .optional()
+        .describe(
+          'A comma-separated list of statuses by which limit orders will be filtered. Valid statuses include: 1 - Valid orders, 2 - Temporarily invalid orders, 3 - Invalid orders. Comma-separated values, e.g., "1,2,3", defaults to "1,2,3"'
+        ),
+    },
+    async ({ address, page = 1, takerAsset, makerAsset, statuses }) => {
+      const axios = require('axios')
+      const url = `https://api.1inch.dev/orderbook/v4.0/1/address/${address}`
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${process.env.ONE_INCH_API_KEY}`,
+        },
+        params: {
+          page,
+          limit: 100,
+          statuses,
+          takerAsset,
+          makerAsset,
+        },
+        paramsSerializer: {
+          indexes: null,
+        },
+      }
+
+      try {
+        const response = await axios.get(url, config)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(response.data, bigintReplacer, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        console.error(error)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching limit orders: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }
