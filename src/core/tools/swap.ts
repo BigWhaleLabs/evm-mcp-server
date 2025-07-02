@@ -138,7 +138,7 @@ export default function registerSwapTools(server: McpServer) {
             protocols: [Protocol.V3],
           }
         )
-        console.log(`Route found:`, route)
+        console.log(`Route found!`)
         if (!route?.route[0].route) {
           throw new Error('No route found')
         }
