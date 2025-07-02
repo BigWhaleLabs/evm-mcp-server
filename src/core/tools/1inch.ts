@@ -257,7 +257,7 @@ export default function register1InchTools(server: McpServer) {
           }
         }
         return {
-          content: [{ type: 'text', text: `Error: ${error}` }],
+          content: [{ type: 'text', text: `Error: ${JSON.stringify(error)}` }],
           isError: true,
         }
       }
