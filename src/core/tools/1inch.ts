@@ -257,7 +257,16 @@ export default function register1InchTools(server: McpServer) {
           }
         }
         return {
-          content: [{ type: 'text', text: `Error: ${JSON.stringify(error)}` }],
+          content: [
+            {
+              type: 'text',
+              text: `Error: ${{
+                message: error instanceof Error ? error.message : String(error),
+                name: error instanceof Error ? error.name : 'UnknownError',
+                data: (error as any).response?.data,
+              }}`,
+            },
+          ],
           isError: true,
         }
       }
